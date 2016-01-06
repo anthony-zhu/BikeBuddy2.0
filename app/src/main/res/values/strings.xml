@@ -1,0 +1,28 @@
+<resources>
+    <string name="app_name">Bike Buddy</string>
+    <string name="settings">Settings</string>
+    <string name="lorem_ipsum">Sugar plum sugar plum gummies donut jelly powder. Icing muffin cheesecake liquorice wafer bonbon. Bonbon tootsie roll halvah. Lollipop macaroon bear claw chocolate cake. Chocolate bar gummi bears candy cheesecake icing oat cake. Cake chocolate cake liquorice pie. Donut halvah lollipop. Bear claw lollipop sweet roll cookie dragée dragée donut candy. Cheesecake liquorice marzipan dragée muffin chocolate dessert jujubes. Cupcake ice cream tootsie roll bonbon croissant gingerbread ice cream danish. Jelly beans donut jujubes sugar plum. Tootsie roll tiramisu chupa chups dragée cheesecake brownie chocolate bar chocolate bar icing. Apple pie cake carrot cake gingerbread candy canes</string>
+    <string name="article_detail_more_info">More Info</string>
+
+
+    <string name="main_button">Connect to Edison</string>
+    <string name="main_title">Hello User</string>
+    <string name="main_subhead">Edison is not connected</string>
+
+    <string name="emergency_contact_title">Emergency Contact Number</string>
+    <string name="emergency_contact_subhead">Please Enter a valid phone number or pick one from your contacts</string>
+    <string name="emergency_contact_hint_phone_number">Phone Number</string>
+    <string name="emergency_contact_button">From Contacts</string>
+
+
+    <string name="navigation_title">Navigation</string>
+    <string name="navigation_main">Connect to Edison</string>
+    <string name="navigation_old_rides">Old Rides</string>
+    <string name="navigation_emergency_contact">Emergency Contact</string>
+    <!--
+    <string name="navigation_settings">Settings</string>
+    <string name="navigation_sub_items">Sub items</string>
+    <string name="navigation_dummy_item_1">Dummy item 1</string>
+    <string name="navigation_dummy_item_2">Dummy item 2</string>
+    -->
+</resources>

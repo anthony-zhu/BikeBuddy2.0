@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/emergency_contact_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_above="@+id/emergency_contact_fab"
+        android:orientation="vertical"
+        android:padding="@dimen/regular_offset">
+
+        <TextView
+            android:id="@+id/emergency_contact_title"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/emergency_contact_title" />
+
+        <TextView
+            android:id="@+id/emergency_contact_subhead"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/emergency_contact_subhead" />
+
+        <android.support.design.widget.TextInputLayout
+            android:id="@+id/emergency_contact_text_phonenumber_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp">
+
+            <EditText
+                android:id="@+id/emergency_contact_text_phonenumber"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/emergency_contact_hint_phone_number"
+                android:ems="10"
+                android:inputType="phone"/>
+
+        </android.support.design.widget.TextInputLayout>
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/emergency_contact_button"
+            android:textColor="@color/white"
+            android:padding="0dp"
+            android:minWidth="150dp"
+            android:minHeight="36dp"
+            android:layout_margin="3dp"
+            android:elevation="1dp"
+            android:translationZ="1dp"
+            android:background="@color/theme_primary_light"
+            android:id="@+id/emergency_button"
+            android:layout_gravity="center_horizontal" />
+
+
+    </LinearLayout>
+
+    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/emergency_contact_fab"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:layout_alignParentBottom="true"
+        android:fitsSystemWindows="true">
+
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="end|bottom"
+            android:layout_margin="@dimen/regular_offset"
+            android:src="@drawable/ic_done" />
+
+    </android.support.design.widget.CoordinatorLayout>
+
+</RelativeLayout>

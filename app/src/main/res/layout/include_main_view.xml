@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <LinearLayout
+        android:id="@+id/main_main"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="@dimen/regular_offset">
+
+        <TextView
+            android:id="@+id/main_title"
+            style="@style/TextAppearance.AppCompat.Title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/main_title" />
+
+        <TextView
+            android:id="@+id/main_subhead"
+            style="@style/TextAppearance.AppCompat.Subhead"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            android:text="@string/main_subhead" />
+
+    </LinearLayout>
+
+    <Button
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_button"
+        android:textColor="@color/white"
+        android:padding="0dp"
+        android:minWidth="170dp"
+        android:minHeight="36dp"
+        android:elevation="1dp"
+        android:translationZ="1dp"
+        android:background="@color/theme_primary_light"
+        android:id="@+id/main_button"
+        android:layout_gravity="center_horizontal"
+        android:layout_below="@+id/main_main"
+        android:layout_centerHorizontal="true" />
+
+
+    <!-- Add a fab if we want
+    <android.support.design.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/main_fab"
+        android:layout_width="match_parent"
+        android:layout_height="128dp"
+        android:layout_alignParentBottom="true"
+        android:fitsSystemWindows="true">
+
+
+    </android.support.design.widget.CoordinatorLayout>
+    -->
+
+
+</RelativeLayout>
