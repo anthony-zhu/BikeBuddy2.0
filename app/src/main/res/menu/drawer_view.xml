@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:checkableBehavior="single">
-        <!-- TODO: Add new icon
-        android:icon="@drawable/ic_discuss"-->
+
         <item
             android:id="@+id/nav_main"
+            android:icon="@drawable/ic_motorcycle"
             android:title="@string/navigation_main" />
         <item
             android:id="@+id/nav_old_rides"
-            android:icon="@drawable/ic_discuss"
+            android:icon="@drawable/ic_insert_chart"
             android:title="@string/navigation_old_rides" />
         <item
             android:id="@+id/nav_emergency_contact"
-            android:icon="@drawable/ic_action_settings"
+            android:icon="@drawable/ic_person_add"
             android:title="@string/navigation_emergency_contact" />
 
         <!--
@@ -21,6 +21,7 @@
             android:icon="@drawable/ic_action_settings"
             android:title="@string/navigation_settings" />
         -->
+
     </group>
 
     <!--

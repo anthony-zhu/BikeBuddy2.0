@@ -45,7 +45,7 @@ public class SettingsActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    // TODO temporary comment to prevent errors
+    // comment to prevent errors
     /*
         @Override
         protected int getSelfNavDrawerItem() {
