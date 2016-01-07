@@ -52,9 +52,9 @@ import butterknife.ButterKnife;
  */
 public class MainActivity extends BaseActivity implements
         ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
-    private static BluetoothSPP bt;
+    private BluetoothSPP bt;
     private double accel_x, accel_y, accel_z;
-    private static double max_accel_x, max_accel_y, max_accel_z; // For testing
+    private double max_accel_x, max_accel_y, max_accel_z; // For testing
     private static TextView mEdisonStatus;
     private static TextView mStatusView;
     protected GoogleApiClient mGoogleApiClient;
@@ -117,129 +117,127 @@ public class MainActivity extends BaseActivity implements
             startActivity(intent);
         }
 
-        if (bt == null) {
-            // Initialize new BluetoothSPP (static)
-            bt = new BluetoothSPP(this);
+        // Initialize new BluetoothSPP
+        bt = new BluetoothSPP(this);
 
-            // Check for Bluetooth availability
-            if (!bt.isBluetoothAvailable()) {
-                Toast.makeText(getApplicationContext()
-                        , "Bluetooth is not available"
-                        , Toast.LENGTH_SHORT).show();
-                finish();
+        // Check for Bluetooth availability
+        if (!bt.isBluetoothAvailable()) {
+            Toast.makeText(getApplicationContext()
+                    , "Bluetooth is not available"
+                    , Toast.LENGTH_SHORT).show();
+            finish();
+        }
+
+        // Register BluetoothState Listener
+        bt.setBluetoothStateListener(new BluetoothStateListener() {
+            public void onServiceStateChanged(int state) {
+                switch (state) {
+                    case BluetoothState.STATE_CONNECTED:
+                        Log.i("Check", "State : Connected");
+                        mEdisonStatus.setText(getResources().getString(R.string.edison_connected));
+                        break;
+                    case BluetoothState.STATE_CONNECTING:
+                        Log.i("Check", "State : Connecting");
+                        mEdisonStatus.setText(getResources().getString(R.string.edison_connecting));
+                        break;
+                    case BluetoothState.STATE_LISTEN:
+                        Log.i("Check", "State : Listen");
+                        mEdisonStatus.setText(getResources().getString(R.string.edison_listening));
+                        break;
+                    case BluetoothState.STATE_NONE:
+                        Log.i("Check", "State : None");
+                        mEdisonStatus.setText(getResources().getString(R.string.edison_none));
+                        break;
+                }
+            }
+        });
+
+        // Register OnDataReceived Listener
+        bt.setOnDataReceivedListener(new OnDataReceivedListener() {
+            // JSONString: {"accel":{"x":0.847,"y":0.042,"z":-1.023}}
+            public void onDataReceived(String message) {
+                try {
+                    // Parse incoming JSON object
+                    JSONObject mainObject = new JSONObject(message);
+                    JSONObject accelObject = mainObject.getJSONObject("accel");
+                    accel_x = accelObject.getDouble("x");
+                    accel_y = accelObject.getDouble("y");
+                    accel_z = accelObject.getDouble("z");
+
+                    // Log data
+                    Log.i("Check", "x : " + accel_x + " y: " + accel_y + " z: " + accel_z);
+
+                    // Update max acceleration values
+                    if (Math.abs(accel_x) > max_accel_x)
+                        max_accel_x = Math.abs(accel_x);
+                    if (Math.abs(accel_y) > max_accel_y)
+                        max_accel_y = Math.abs(accel_y);
+                    if (Math.abs(accel_z) > max_accel_z)
+                        max_accel_z = Math.abs(accel_z);
+
+                    // Check for impact
+                    if (Math.abs(accel_x) >= 4 ||
+                            Math.abs(accel_y) >= 4 ||
+                            Math.abs(accel_z) >= 4) {
+
+                        // Turn off Bluetooth service
+                        bt.disconnect();
+
+                        if (mGoogleApiClient.isConnected()) {
+                            stopLocationUpdates();
+                        }
+
+                        mRequestingLocationUpdates = false;
+
+                        // Launch alert dialog activity with countdown
+                        createAlert();
+                    }
+                } catch (JSONException e) {
+                    Log.e("MainActivity", "Could not parse malformed JSON");
+                }
+            }
+        });
+
+        // Register BluetoothConnection Listener
+        bt.setBluetoothConnectionListener(new BluetoothConnectionListener() {
+            public void onDeviceConnected(String name, String address) {
+                Log.i("Check", "Device Connected!!");
             }
 
-            // Register BluetoothState Listener
-            bt.setBluetoothStateListener(new BluetoothStateListener() {
-                public void onServiceStateChanged(int state) {
-                    switch (state) {
-                        case BluetoothState.STATE_CONNECTED:
-                            Log.i("Check", "State : Connected");
-                            mEdisonStatus.setText(getResources().getString(R.string.edison_connected));
-                            break;
-                        case BluetoothState.STATE_CONNECTING:
-                            Log.i("Check", "State : Connecting");
-                            mEdisonStatus.setText(getResources().getString(R.string.edison_connecting));
-                            break;
-                        case BluetoothState.STATE_LISTEN:
-                            Log.i("Check", "State : Listen");
-                            mEdisonStatus.setText(getResources().getString(R.string.edison_listening));
-                            break;
-                        case BluetoothState.STATE_NONE:
-                            Log.i("Check", "State : None");
-                            mEdisonStatus.setText(getResources().getString(R.string.edison_none));
-                            break;
-                    }
+            public void onDeviceDisconnected() {
+                Log.i("Check", "Device Disconnected!!");
+            }
+
+            public void onDeviceConnectionFailed() {
+                Log.i("Check", "Unable to Connect!!");
+            }
+        });
+
+        // Register AutoConnection Listener
+        bt.setAutoConnectionListener(new AutoConnectionListener() {
+            public void onNewConnection(String name, String address) {
+                Log.i("Check", "New Connection - " + name + " - " + address);
+            }
+
+            public void onAutoConnectionStarted() {
+                Log.i("Check", "Auto menu_connection started");
+            }
+        });
+
+        // Register OnClick Listener for btnMain
+        Button btnMain = (Button) findViewById(R.id.main_button);
+        btnMain.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
+                    mRequestingLocationUpdates = false;
+                    stopLocationUpdates();
+                    bt.disconnect();
+                } else {
+                    Intent intent = new Intent(MainActivity.this, DeviceList.class);
+                    startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
                 }
-            });
-
-            // Register OnDataReceived Listener
-            bt.setOnDataReceivedListener(new OnDataReceivedListener() {
-                // JSONString: {"accel":{"x":0.847,"y":0.042,"z":-1.023}}
-                public void onDataReceived(String message) {
-                    try {
-                        // Parse incoming JSON object
-                        JSONObject mainObject = new JSONObject(message);
-                        JSONObject accelObject = mainObject.getJSONObject("accel");
-                        accel_x = accelObject.getDouble("x");
-                        accel_y = accelObject.getDouble("y");
-                        accel_z = accelObject.getDouble("z");
-
-                        // Log data
-                        Log.i("Check", "x : " + accel_x + " y: " + accel_y + " z: " + accel_z);
-
-                        // Update max acceleration values
-                        if (Math.abs(accel_x) > max_accel_x)
-                            max_accel_x = Math.abs(accel_x);
-                        if (Math.abs(accel_y) > max_accel_y)
-                            max_accel_y = Math.abs(accel_y);
-                        if (Math.abs(accel_z) > max_accel_z)
-                            max_accel_z = Math.abs(accel_z);
-
-                        // Check for impact
-                        if (Math.abs(accel_x) >= 4 ||
-                                Math.abs(accel_y) >= 4 ||
-                                Math.abs(accel_z) >= 4) {
-
-                            // Turn off Bluetooth service
-                            bt.disconnect();
-
-                            if (mGoogleApiClient.isConnected()) {
-                                stopLocationUpdates();
-                            }
-
-                            mRequestingLocationUpdates = false;
-
-                            // Launch alert dialog activity with countdown
-                            createAlert();
-                        }
-                    } catch (JSONException e) {
-                        Log.e("MainActivity", "Could not parse malformed JSON");
-                    }
-                }
-            });
-
-            // Register BluetoothConnection Listener
-            bt.setBluetoothConnectionListener(new BluetoothConnectionListener() {
-                public void onDeviceConnected(String name, String address) {
-                    Log.i("Check", "Device Connected!!");
-                }
-
-                public void onDeviceDisconnected() {
-                    Log.i("Check", "Device Disconnected!!");
-                }
-
-                public void onDeviceConnectionFailed() {
-                    Log.i("Check", "Unable to Connect!!");
-                }
-            });
-
-            // Register AutoConnection Listener
-            bt.setAutoConnectionListener(new AutoConnectionListener() {
-                public void onNewConnection(String name, String address) {
-                    Log.i("Check", "New Connection - " + name + " - " + address);
-                }
-
-                public void onAutoConnectionStarted() {
-                    Log.i("Check", "Auto menu_connection started");
-                }
-            });
-
-            // Register OnClick Listener for btnMain
-            Button btnMain = (Button) findViewById(R.id.main_button);
-            btnMain.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    if (bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
-                        mRequestingLocationUpdates = false;
-                        stopLocationUpdates();
-                        bt.disconnect();
-                    } else {
-                        Intent intent = new Intent(MainActivity.this, DeviceList.class);
-                        startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
-                    }
-                }
-            });
-        }
+            }
+        });
     }
 
     private void updateValuesFromBundle(Bundle savedInstanceState) {

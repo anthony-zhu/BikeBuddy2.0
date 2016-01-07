@@ -53,10 +53,10 @@ public class DeviceList extends AppCompatActivity {
     private Button scanButton;
 
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        
         // Setup the window
         requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
+        super.onCreate(savedInstanceState);
+
         int listId = getIntent().getIntExtra("layout_list", R.layout.device_list);
         setContentView(listId);
         
