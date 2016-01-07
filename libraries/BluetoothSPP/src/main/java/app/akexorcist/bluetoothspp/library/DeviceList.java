@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -40,7 +41,7 @@ import android.widget.TextView;
 import java.util.Set;
 
 @SuppressLint("NewApi")
-public class DeviceList extends Activity {
+public class DeviceList extends AppCompatActivity {
     // Debugging
     private static final String TAG = "BluetoothSPP";
     private static final boolean D = true;
