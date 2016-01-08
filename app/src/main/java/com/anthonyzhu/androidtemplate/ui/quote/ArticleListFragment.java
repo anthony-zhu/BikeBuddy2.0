@@ -121,7 +121,7 @@ public class ArticleListFragment extends ListFragment {
 
             final DummyContent.DummyItem item = (DummyContent.DummyItem) getItem(position);
             ((TextView) convertView.findViewById(R.id.article_title)).setText(item.title);
-            ((TextView) convertView.findViewById(R.id.article_subtitle)).setText(item.author);
+            ((TextView) convertView.findViewById(R.id.article_subtitle)).setText(item.date);
             final ImageView img = (ImageView) convertView.findViewById(R.id.thumbnail);
             Glide.with(getActivity()).load(item.photoId).asBitmap().fitCenter().into(new BitmapImageViewTarget(img) {
                 @Override

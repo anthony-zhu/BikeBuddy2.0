@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="@dimen/regular_offset">
+
+    <Chronometer
+        android:id="@+id/main_timer"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+
+    <TextView
+        android:id="@+id/main_latitude"
+        android:layout_below="@id/main_timer"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_default_latitude" />
+
+    <TextView
+        android:id="@+id/main_longitude"
+        android:layout_below="@id/main_latitude"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_default_longitude" />
+
+    <TextView
+        android:id="@+id/main_speed"
+        android:layout_below="@id/main_longitude"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_default_speed" />
+
+    <TextView
+        android:id="@+id/main_total_distance"
+        android:layout_below="@id/main_speed"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/main_default_total_distance" />
+
+    <TextView
+        android:id="@+id/main_average_speed"
+        android:layout_below="@id/main_total_distance"
+        android:layout_marginTop="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="" />
+
+</LinearLayout>

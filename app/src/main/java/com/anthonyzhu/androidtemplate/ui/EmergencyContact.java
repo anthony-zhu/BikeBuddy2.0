@@ -66,6 +66,7 @@ public class EmergencyContact extends BaseActivity {
         SharedPreferences settings = getSharedPreferences(STORE_DATA, MODE_PRIVATE);
         SharedPreferences.Editor editor = settings.edit();
         String phonenumber = mEdit.getText().toString();
+
         if (!phonenumber.equals("")) {
             editor.putString(PHONE_NUMBER, phonenumber);
             Log.i("Check", "Saving contact: " + phonenumber);

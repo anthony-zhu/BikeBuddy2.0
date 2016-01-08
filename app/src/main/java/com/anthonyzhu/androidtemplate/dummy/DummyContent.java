@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+
 /**
  * Just dummy content. Nothing special.
  *
@@ -25,11 +26,16 @@ public class DummyContent {
     public static final Map<String, DummyItem> ITEM_MAP = new HashMap<>(5);
 
     static {
-        addItem(new DummyItem("1", R.drawable.p1, "Quote #1", "Steve Jobs", "Focusing is about saying No."));
-        addItem(new DummyItem("2", R.drawable.p2, "Quote #2", "Napoleon Hill","A quitter never wins and a winner never quits."));
-        addItem(new DummyItem("3", R.drawable.p3, "Quote #3", "Pablo Picaso", "Action is the foundational key to all success."));
-        addItem(new DummyItem("4", R.drawable.p4, "Quote #4", "Napoleon Hill","Our only limitations are those we set up in our own minds."));
-        addItem(new DummyItem("5", R.drawable.p5, "Quote #5", "Steve Jobs","Deciding what not do do is as important as deciding what to do."));
+        addItem(new DummyItem("1", R.drawable.p1, "Ride #1", "10/12/15", "10.0", "23:14", "28", "38","31",
+                "89" , "1" , 4 ));
+        addItem(new DummyItem("2", R.drawable.p2, "Ride #2", "10/30/15","6.1", "31:55", "20", "29","40",
+                "75" , "4", 3));
+        addItem(new DummyItem("3", R.drawable.p3, "Ride #3", "11/27/15", "4.5", "58:08", "36", "50", "24",
+                "100", "0", 5));
+        addItem(new DummyItem("4", R.drawable.p4, "Ride #4", "12/23/15","3.1", "20:35", "30", "35","8",
+                "85", "2", 4));
+        addItem(new DummyItem("5", R.drawable.p5, "Ride #5", "1/2/16","8.5", "41:19", "24", "33", "12",
+                "66", "6", 2));
     }
 
     private static void addItem(DummyItem item) {
@@ -41,15 +47,30 @@ public class DummyContent {
         public final String id;
         public final int photoId;
         public final String title;
-        public final String author;
+        public final String date;
         public final String content;
+        public final String tSpeed;
+        public final String avSpeed;
+        public final String rideTime;
+        public final String elev;
+        public final String goodSt;
+        public final String badSt;
+        public final int rat;
 
-        public DummyItem(String id, int photoId, String title, String author, String content) {
+        public DummyItem(String id, int photoId, String title, String date, String content, String rideTime,
+                         String avSpeed, String tSpeed, String elev, String goodSt, String badSt, int rat ) {
             this.id = id;
             this.photoId = photoId;
             this.title = title;
-            this.author = author;
+            this.date = date;
             this.content = content;
+            this.rideTime = rideTime;
+            this.avSpeed = avSpeed;
+            this.tSpeed = tSpeed;
+            this.elev = elev;
+            this.goodSt = goodSt;
+            this.badSt = badSt;
+            this.rat = rat;
         }
     }
 }

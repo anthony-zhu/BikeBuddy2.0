@@ -8,16 +8,20 @@
     <string name="main_button">Connect to Edison</string>
     <string name="main_title">Hello User</string>
     <string name="main_subhead">Edison is not connected</string>
+    <string name="main_default_latitude">Current latitude not tracked</string>
+    <string name="main_default_longitude">Current longitude not tracked</string>
+    <string name="main_default_speed">Current speed not tracked</string>
+    <string name="main_default_total_distance">Total Distance not tracked</string>
 
 
     <string name="emergency_contact_title">Emergency Contact Number</string>
-    <string name="emergency_contact_subhead">Please Enter a valid phone number or pick one from your contacts</string>
+    <string name="emergency_contact_subhead">Please enter a valid phone number or pick one from your contacts:</string>
     <string name="emergency_contact_hint_phone_number">Phone Number</string>
     <string name="emergency_contact_button">From Contacts</string>
 
 
     <string name="dialog_title">Ouch, that hurt! Are you okay?</string>
-    <string name="dialog_subhead">If you do not respond, an emergency message and phone call will take place</string>
+    <string name="dialog_subhead">If you do not respond, a text message to your emergency contact and a phone call to emergency services will take place.</string>
     <string name="dialog_default_text">Seconds remaining: 30</string>
     <string name="dialog_button">Yes</string>
 
@@ -29,7 +33,7 @@
 
     <string name="edison_connected">Edison is connected</string>
     <string name="edison_connecting">Edison is connecting&#8230;</string>
-    <string name="edison_listening">Edison is listening&#8230;</string>
+    <string name="edison_listening">Device is ready to connect&#8230;</string>
     <string name="edison_none">Edison is disconnected</string>
 
 

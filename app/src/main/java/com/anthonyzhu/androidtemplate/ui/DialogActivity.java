@@ -43,7 +43,7 @@ public class DialogActivity extends Activity {
                 double latitude = original_intent.getDoubleExtra("CURRENT_LATITUDE", 0.0);
                 double longitude = original_intent.getDoubleExtra("CURRENT_LONGITUDE", 0.0);
 
-                String message = "I've been in a bike accident. I am at (" + latitude + ", " + longitude + ").";
+                String message = "I've been in a biking accident. I am at (" + latitude + ", " + longitude + ").";
                 SmsManager smsManager = SmsManager.getDefault();
                 smsManager.sendTextMessage(phone_number, null, message, null, null);
                 Toast.makeText(getApplicationContext(), "Text message sent.", Toast.LENGTH_LONG).show();

@@ -10,15 +10,16 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.bumptech.glide.Glide;
-
-import butterknife.Bind;
 import com.anthonyzhu.androidtemplate.R;
 import com.anthonyzhu.androidtemplate.dummy.DummyContent;
 import com.anthonyzhu.androidtemplate.ui.base.BaseActivity;
 import com.anthonyzhu.androidtemplate.ui.base.BaseFragment;
+import com.bumptech.glide.Glide;
+
+import butterknife.Bind;
 
 /**
  * Shows the quote detail page.
@@ -49,6 +50,15 @@ public class ArticleDetailFragment extends BaseFragment {
     @Bind(R.id.collapsing_toolbar)
     CollapsingToolbarLayout collapsingToolbar;
 
+    @Bind(R.id.rideInfo)
+    TextView rideInfo;
+
+    @Bind(R.id.quatInfo)
+    TextView quatInfo;
+
+    @Bind(R.id.ratBar)
+    RatingBar ratBar;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -73,8 +83,11 @@ public class ArticleDetailFragment extends BaseFragment {
         if (dummyItem != null) {
             loadBackdrop();
             collapsingToolbar.setTitle(dummyItem.title);
-            author.setText(dummyItem.author);
-            quote.setText(dummyItem.content);
+            author.setText("Your ride on " + dummyItem.date);
+            quote.setText("You rode " + dummyItem.content + " miles");
+            rideInfo.setText("-Your ride lasted: "+ dummyItem.rideTime  +". \n-Your average speed was " + dummyItem.avSpeed +" mph  \n-Your top speed was "+dummyItem.tSpeed +" mph  \n-Your largest elevation change was " + dummyItem.elev + " floors.");
+            quatInfo.setText("Safe Brake percentages: "+ dummyItem.goodSt + "% \n-Number of Dangerous Stops:" +dummyItem.badSt );
+            ratBar.setRating(dummyItem.rat);
         }
 
         return rootView;

@@ -11,6 +11,7 @@
         android:orientation="vertical">
         <include layout="@layout/include_toolbar" />
         <include layout="@layout/include_main_view" />
+        <include layout="@layout/include_main_stat_view" />
     </LinearLayout>
     <include layout="@layout/include_navigation" />
 

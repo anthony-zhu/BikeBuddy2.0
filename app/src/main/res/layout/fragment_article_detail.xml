@@ -97,15 +97,51 @@
                         android:text="@string/article_detail_more_info"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
+
                     <TextView
+                        android:id="@+id/rideInfo"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:text="@string/lorem_ipsum" />
+                        android:textSize="17dp"/>
+
+                    <TextView
+                        android:id="@+id/quat"
+                        android:layout_marginTop="20dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Quat Stats"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        />
+
+                    <TextView
+                        android:id="@+id/quatInfo"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:textSize="17dp"/>
+
+                    <TextView
+                        android:id="@+id/safe"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="20dp"
+                        android:textAppearance="@style/TextAppearance.AppCompat.Title"
+                        android:text="Safety Rating:"/>
+
+                    <RatingBar
+                        android:id="@+id/ratBar"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:rating="0"
+                        android:isIndicator="true"
+                        android:stepSize="0.05"
+                        android:contextClickable="false"
+                        android:clickable="false"/>
 
                 </LinearLayout>
 
             </android.support.v7.widget.CardView>
-
 
         </LinearLayout>
 
