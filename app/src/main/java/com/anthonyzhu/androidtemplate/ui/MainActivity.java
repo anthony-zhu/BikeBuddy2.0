@@ -2,19 +2,15 @@ package com.anthonyzhu.androidtemplate.ui;
 
 import android.Manifest;
 import android.app.Activity;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.location.Location;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -29,9 +25,9 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
+import com.google.android.gms.location.LocationListener;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -52,19 +48,23 @@ import butterknife.ButterKnife;
  */
 public class MainActivity extends BaseActivity implements
         ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
-    private BluetoothSPP bt;
     private double accel_x, accel_y, accel_z;
     private double max_accel_x, max_accel_y, max_accel_z; // For testing
     private static TextView mEdisonStatus;
     private static TextView mStatusView;
+    private static BluetoothSPP bt;
     protected GoogleApiClient mGoogleApiClient;
     protected LocationRequest mLocationRequest;
+    protected float mTotalDistance;
     protected Location mCurrentLocation;
     protected Boolean mRequestingLocationUpdates;
 
     // Keys for storing activity state in the Bundle.
     protected final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
     protected final static String LOCATION_KEY = "location-key";
+    protected final static String DISTANCE_KEY = "distance-key";
+    private final static double metersToMiles = 0.000621371;
+    //protected final static String BLUETOOTH_KEY = "bluetooth-key";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,6 +75,9 @@ public class MainActivity extends BaseActivity implements
 
         // Set up Location Services
         mRequestingLocationUpdates = false;
+
+        // Set up current distance
+        mTotalDistance = 0;
 
         // Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState);
@@ -94,19 +97,20 @@ public class MainActivity extends BaseActivity implements
             mStatusView = (TextView) findViewById(R.id.main_title);
         }
 
-        Cursor c = this.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
         try {
+            Cursor c = this.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
             int count = c.getCount();
             c.moveToFirst();
             int position = c.getPosition();
-            if (count == 1 && position == 0)
-                mStatusView.setText("Hello " + c.getString(c.getColumnIndex("DISPLAY_NAME")));
+            if (count == 1 && position == 0) {
+                String user_greeting = "Hello " + c.getString(c.getColumnIndex("DISPLAY_NAME"));
+                mStatusView.setText(user_greeting);
+            }
+            c.close();
         }
         catch (NullPointerException e) {
             Log.e("MainActivity", "Could not parse user information");
         }
-
-        c.close();
 
         // Check if preferences have been set
         SharedPreferences settings = getSharedPreferences(EmergencyContact.STORE_DATA, MODE_PRIVATE);
@@ -117,8 +121,11 @@ public class MainActivity extends BaseActivity implements
             startActivity(intent);
         }
 
+
         // Initialize new BluetoothSPP
-        bt = new BluetoothSPP(this);
+        if (bt == null) {
+            bt = new BluetoothSPP(this);
+        }
 
         // Check for Bluetooth availability
         if (!bt.isBluetoothAvailable()) {
@@ -189,8 +196,13 @@ public class MainActivity extends BaseActivity implements
 
                         mRequestingLocationUpdates = false;
 
-                        // Launch alert dialog activity with countdown
-                        createAlert();
+                        // Launch Dialog Activity
+                        Intent intent = new Intent(MainActivity.this, DialogActivity.class);
+                        if (mCurrentLocation != null) {
+                            intent.putExtra("CURRENT_LATITUDE", mCurrentLocation.getLatitude());
+                            intent.putExtra("CURRENT_LONGITUDE", mCurrentLocation.getLongitude());
+                        }
+                        startActivity(intent);
                     }
                 } catch (JSONException e) {
                     Log.e("MainActivity", "Could not parse malformed JSON");
@@ -258,8 +270,15 @@ public class MainActivity extends BaseActivity implements
                 mCurrentLocation = savedInstanceState.getParcelable(LOCATION_KEY);
             }
 
-            // Update UI with distanceBetween (double startLatitude, double startLongitude, double endLatitude, double endLongitude, float[] results)
-            // updateUI();
+            // Update the value of mTotalDistance from the Bundle and update the UI to show the
+            // correct distance.
+            if (savedInstanceState.keySet().contains(DISTANCE_KEY)) {
+                // Since LOCATION_KEY was found in the Bundle, we can be sure that mCurrentLocation
+                // is not null.
+                mTotalDistance = savedInstanceState.getFloat(DISTANCE_KEY);
+            }
+
+            // TODO updateUI();
         }
     }
 
@@ -321,12 +340,18 @@ public class MainActivity extends BaseActivity implements
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            // Update UI with distanceBetween (double startLatitude, double startLongitude, double endLatitude, double endLongitude, float[] results)
-            // updateUI();
+            if (location.getLatitude() != mCurrentLocation.getLatitude() ||
+                    location.getLongitude() != mCurrentLocation.getLongitude()) {
+                float[] results = new float[1];
+                Location.distanceBetween(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude(),
+                        location.getLatitude(), location.getLongitude(), results);
+                mTotalDistance += results[0];
+            }
+
+            // TODO updateUI();
         }
         mCurrentLocation = location;
-        Log.i("Check", "Location changed to " + mCurrentLocation.getLatitude() + ", " + mCurrentLocation.getLongitude());
-
+        Log.i("Check", "Distance: " + mTotalDistance);
     }
 
     @Override
@@ -345,69 +370,6 @@ public class MainActivity extends BaseActivity implements
         //
         // More about this in the 'Handle Connection Failures' sectioon
         Log.d("MainActivity", "Connection : Failed");
-    }
-
-    // TODO change to activity dialog (<activity android:theme="@android:style/Theme.Dialog">)
-    // Create Alert Dialog
-    public void createAlert() {
-        AlertDialog.Builder alert_builder = new AlertDialog.Builder(this);
-        alert_builder.setMessage("Ouch, that hurt! Are you okay?\n00:30");
-        alert_builder.setCancelable(true);
-        alert_builder.setNegativeButton("Yes", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.cancel();
-            }
-        });
-        final AlertDialog alertDialog = alert_builder.create();
-
-        alert_builder.setTitle("Impact Alert");
-        alertDialog.show();
-
-        new CountDownTimer(30000, 1000) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                alertDialog.setMessage("Ouch, that hurt! Are you okay?\n00:"+ (millisUntilFinished/1000));
-            }
-
-            @Override
-            public void onFinish() {
-                Log.i("Check", "Time is up!");
-
-                SharedPreferences settings = getSharedPreferences(EmergencyContact.STORE_DATA, MODE_PRIVATE);
-                String phone_number = settings.getString(EmergencyContact.PHONE_NUMBER, "");
-                if (!phone_number.equals("")) {
-                    Log.i("Check", "Using contact: " + phone_number);
-                }
-
-                /*
-                // Build implicit phone call intent
-                Uri number = Uri.parse("tel:" + phone_number);
-                Intent callIntent = new Intent(Intent.ACTION_DIAL, number);
-
-                // Verify it resolves
-                PackageManager packageManager = getPackageManager();
-                List<ResolveInfo> activities = packageManager.queryIntentActivities(callIntent, 0);
-                boolean isIntentSafe = activities.size() > 0;
-
-                // Start an activity if it's safe
-                if (isIntentSafe) {
-                    startActivity(callIntent);
-                }
-                else {
-                    Toast.makeText(getApplicationContext()
-                            , "Phone does not have call or text capabilities."
-                            , Toast.LENGTH_SHORT).show();
-                }
-                */
-
-                String message = "Test SMS message. Location details to be included later";
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(phone_number, null, message, null, null);
-                Toast.makeText(getApplicationContext(), "Text message sent.", Toast.LENGTH_LONG).show();
-                alertDialog.dismiss();
-            }
-        }.start();
     }
 
     public void onDestroy() {
@@ -509,6 +471,7 @@ public class MainActivity extends BaseActivity implements
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
         savedInstanceState.putParcelable(LOCATION_KEY, mCurrentLocation);
+        savedInstanceState.putFloat(DISTANCE_KEY, mTotalDistance);
         super.onSaveInstanceState(savedInstanceState);
     }
 }

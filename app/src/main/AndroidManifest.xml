@@ -31,6 +31,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
         <activity android:name=".ui.quote.ListActivity"
             android:label="Old Rides"
             android:parentActivityName="com.anthonyzhu.androidtemplate.ui.MainActivity"/>
@@ -40,6 +41,11 @@
         <activity android:name=".ui.EmergencyContact"
             android:label="Emergency Contact"
             android:parentActivityName="com.anthonyzhu.androidtemplate.ui.MainActivity"/>
+
+        <activity android:name=".ui.DialogActivity"
+            android:label="Impact Alert"
+            android:theme="@android:style/Theme.Dialog">
+        </activity>
 
         <!--
         <activity android:name="com.anthonyzhu.androidtemplate.ui.SettingsActivity"

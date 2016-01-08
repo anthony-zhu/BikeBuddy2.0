@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:padding="12dip">
+
+
+    <TextView
+        android:id="@+id/emergency_contact_title"
+        style="@style/TextAppearance.AppCompat.Title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textSize="24sp"
+        android:text="@string/dialog_title" />
+
+    <TextView
+        android:id="@+id/emergency_contact_subhead"
+        style="@style/TextAppearance.AppCompat.Subhead"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="12dip"
+        android:text="@string/dialog_subhead" />
+
+    <TextView
+        android:id="@+id/dialog_text"
+        android:text="@string/dialog_default_text"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center_horizontal"
+        android:textSize="20sp"
+        android:paddingBottom="12sp" />
+
+    <Button
+        android:id="@+id/button_finish_dialog"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/dialog_button"
+        android:layout_gravity="center_horizontal"
+        android:textColor="@color/white"
+        android:minWidth="150dp"
+        android:minHeight="36dp"
+        android:padding="10dp"
+        android:elevation="1dp"
+        android:translationZ="1dp"
+        android:background="@color/theme_primary_light"
+        android:onClick="finishDialog"
+        android:gravity="center_horizontal" />
+
+
+</LinearLayout>

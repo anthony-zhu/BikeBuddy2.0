@@ -9,10 +9,17 @@
     <string name="main_title">Hello User</string>
     <string name="main_subhead">Edison is not connected</string>
 
+
     <string name="emergency_contact_title">Emergency Contact Number</string>
     <string name="emergency_contact_subhead">Please Enter a valid phone number or pick one from your contacts</string>
     <string name="emergency_contact_hint_phone_number">Phone Number</string>
     <string name="emergency_contact_button">From Contacts</string>
+
+
+    <string name="dialog_title">Ouch, that hurt! Are you okay?</string>
+    <string name="dialog_subhead">If you do not respond, an emergency message and phone call will take place</string>
+    <string name="dialog_default_text">Seconds remaining: 30</string>
+    <string name="dialog_button">Yes</string>
 
 
     <string name="navigation_title">Navigation</string>
