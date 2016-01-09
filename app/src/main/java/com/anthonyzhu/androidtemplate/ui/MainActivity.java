@@ -54,7 +54,6 @@ public class MainActivity extends BaseActivity implements
     private double max_accel_x, max_accel_y, max_accel_z; // For testing
 
     private static TextView mEdisonStatus;
-    private static TextView mStatusView;
     private static TextView mLatitudeView;
     private static TextView mLongitudeView;
     private static TextView mSpeedView;
@@ -75,7 +74,6 @@ public class MainActivity extends BaseActivity implements
     protected final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
     protected final static String LOCATION_KEY = "location-key";
     protected final static String DISTANCE_KEY = "distance-key";
-    private final static double metersToMiles = 0.000621371;
     //protected final static String BLUETOOTH_KEY = "bluetooth-key";
 
     @Override
@@ -100,7 +98,7 @@ public class MainActivity extends BaseActivity implements
 
         // Edison Status line
         mEdisonStatus = (TextView) findViewById(R.id.main_subhead);
-        mStatusView = (TextView) findViewById(R.id.main_title);
+        TextView mStatusView = (TextView) findViewById(R.id.main_title);
         mLatitudeView = (TextView) findViewById(R.id.main_latitude);
         mLongitudeView = (TextView) findViewById(R.id.main_longitude);
         mSpeedView = (TextView) findViewById(R.id.main_speed);
@@ -114,8 +112,8 @@ public class MainActivity extends BaseActivity implements
         max_accel_z = 0;
 
         // Use Contact 'Me' to build main_status_view
-        try {
-            Cursor c = this.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+        Cursor c = this.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+        if (c != null) {
             int count = c.getCount();
             c.moveToFirst();
             int position = c.getPosition();
@@ -124,9 +122,6 @@ public class MainActivity extends BaseActivity implements
                 mStatusView.setText(user_greeting);
             }
             c.close();
-        }
-        catch (NullPointerException e) {
-            Log.e("MainActivity", "Could not parse user information");
         }
 
         // Check if preferences have been set
@@ -380,7 +375,8 @@ public class MainActivity extends BaseActivity implements
                     + Integer.parseInt(array[2]) * 1000;
         }
         mAverageSpeed = 1000 * 3600 * mTotalDistance / elapsed;
-        mAverageSpeedView.setText("Your average speed was " + mAverageSpeed + " mph");
+        String average_speed = "Your average speed was " + mAverageSpeed + " mph";
+        mAverageSpeedView.setText(average_speed);
     }
 
     @Override
@@ -395,25 +391,34 @@ public class MainActivity extends BaseActivity implements
     public void onLocationChanged(Location location) {
         if (location != null) {
             if (mCurrentLocation != null) {
-                if (location.getLatitude() != mCurrentLocation.getLatitude() ||
-                        location.getLongitude() != mCurrentLocation.getLongitude()) {
-                    double temp_distance =  mCurrentLocation.distanceTo(location);
-                    Log.i("Check", "Latitude: " + location.getLatitude() + ", Longitude: " +
-                            location.getLongitude() + ", Distance: " + temp_distance);
+                double temp_distance = mCurrentLocation.distanceTo(location);
+                if (temp_distance > location.getAccuracy()) {
+                    Toast.makeText(getApplicationContext()
+                            , "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude() +
+                                    ", Distance: " + temp_distance + ", Accuracy: " + location.getAccuracy()
+                            , Toast.LENGTH_LONG).show();
                     mTotalDistance += temp_distance / 1609.344;
                 }
-                double temp_speed = location.getSpeed() * 3600 / 1609.344;
-
                 // Update UI
-                mSpeedView.setText("Current speed is " + temp_speed + " mph");
-                mTotalDistanceView.setText("Total distance is " + mTotalDistance + " miles");
+                double temp_speed = location.getSpeed() * 3600 / 1609.344;
+                String current_speed = "Current speed is " + temp_speed + " mph";
+                String total_distance = "Total distance is " + mTotalDistance + " miles";
+                mSpeedView.setText(current_speed);
+                mTotalDistanceView.setText(total_distance);
+            }
+            else {
+                Toast.makeText(getApplicationContext()
+                        , "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude()
+                        , Toast.LENGTH_LONG).show();
+                mCurrentLocation = location;
             }
 
             // Update UI
-            mLatitudeView.setText("Current latitude is " + location.getLatitude());
-            mLongitudeView.setText("Current longitude is " + location.getLongitude());
+            String current_latitude = "Current latitude is " + location.getLatitude();
+            String current_longitude = "Current longitude is " + location.getLongitude();
+            mLatitudeView.setText(current_latitude);
+            mLongitudeView.setText(current_longitude);
 
-            mCurrentLocation = location;
         }
     }
 

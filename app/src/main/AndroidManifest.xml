@@ -44,7 +44,7 @@
 
         <activity android:name=".ui.DialogActivity"
             android:label="Impact Alert"
-            android:theme="@android:style/Theme.Dialog">
+            android:theme="@android:style/Theme.Holo.Light.Dialog">
         </activity>
 
         <!--

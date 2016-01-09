@@ -52,9 +52,10 @@
             android:minWidth="150dp"
             android:minHeight="36dp"
             android:padding="10dp"
+            android:elevation="1dp"
+            android:translationZ="1dp"
             android:background="@color/theme_primary_light"
             android:layout_marginEnd="10dp"
-            android:layout_marginRight="10dp"
             android:onClick="dismissDialog" />
 
         <Button
@@ -66,6 +67,8 @@
             android:minWidth="150dp"
             android:minHeight="36dp"
             android:padding="10dp"
+            android:elevation="1dp"
+            android:translationZ="1dp"
             android:background="@color/theme_primary_light"
             android:onClick="confirmDialog" />
 

@@ -33,20 +33,30 @@ public class DialogActivity extends Activity {
                 // mTextField.setText("done!");
                 Log.i("Check", "Time is up!");
 
-                SharedPreferences settings = getSharedPreferences(EmergencyContact.STORE_DATA, MODE_PRIVATE);
-                String phone_number = settings.getString(EmergencyContact.PHONE_NUMBER, "");
-                if (!phone_number.equals("")) {
-                    Log.i("Check", "Using contact: " + phone_number);
-                }
+                executeEmergencyMessage();
 
-                Intent original_intent = getIntent();
-                double latitude = original_intent.getDoubleExtra("CURRENT_LATITUDE", 0.0);
-                double longitude = original_intent.getDoubleExtra("CURRENT_LONGITUDE", 0.0);
+                DialogActivity.this.finish();
+            }
+        };
 
-                String message = "I've been in a biking accident. I am at (" + latitude + ", " + longitude + ").";
-                SmsManager smsManager = SmsManager.getDefault();
-                smsManager.sendTextMessage(phone_number, null, message, null, null);
-                Toast.makeText(getApplicationContext(), "Text message sent.", Toast.LENGTH_LONG).show();
+        timer.start();
+    }
+
+    private void executeEmergencyMessage() {
+        SharedPreferences settings = getSharedPreferences(EmergencyContact.STORE_DATA, MODE_PRIVATE);
+        String phone_number = settings.getString(EmergencyContact.PHONE_NUMBER, "");
+        if (!phone_number.equals("")) {
+            Log.i("Check", "Using contact: " + phone_number);
+        }
+
+        Intent original_intent = getIntent();
+        double latitude = original_intent.getDoubleExtra("CURRENT_LATITUDE", 0.0);
+        double longitude = original_intent.getDoubleExtra("CURRENT_LONGITUDE", 0.0);
+
+        String message = "I've been in a biking accident. I am at (" + latitude + ", " + longitude + ").";
+        SmsManager smsManager = SmsManager.getDefault();
+        smsManager.sendTextMessage(phone_number, null, message, null, null);
+        Toast.makeText(getApplicationContext(), "Text message sent.", Toast.LENGTH_LONG).show();
 
                 /*
                 // Build implicit phone call intent
@@ -68,20 +78,24 @@ public class DialogActivity extends Activity {
                             , Toast.LENGTH_SHORT).show();
                 }
                 */
-
-                DialogActivity.this.finish();
-            }
-        };
-
-        timer.start();
     }
 
     /**
      * Callback method defined by the View
      * @param v
      */
-    public void finishDialog(View v) {
+    public void dismissDialog(View v) {
         timer.cancel();
+        DialogActivity.this.finish();
+    }
+
+    /**
+     * Callback method defined by the View
+     * @param v
+     */
+    public void confirmDialog(View v) {
+        timer.cancel();
+        executeEmergencyMessage();
         DialogActivity.this.finish();
     }
 }

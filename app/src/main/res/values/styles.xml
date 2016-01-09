@@ -41,5 +41,10 @@
         <item name="contentScrim">?attr/colorPrimary</item>
     </style>
 
+    <!-- Used for Light theme dialog on API < 21 -->
+    <style name="dialog_light" parent="@android:style/Theme.Dialog">
+        <item name="@android:background">@color/theme_window_background</item>
+        <item name="@android:textColor">@color/primary_text</item>
+    </style>
 
 </resources>
