@@ -1,15 +1,15 @@
-package com.anthonyzhu.androidtemplate.ui.base;
+package com.anthonyzhu.bikebuddy.ui.base;
 
 import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.anthonyzhu.androidtemplate.util.LogUtil;
+import com.anthonyzhu.bikebuddy.util.LogUtil;
 
 import butterknife.ButterKnife;
 
-import static com.anthonyzhu.androidtemplate.util.LogUtil.makeLogTag;
+import static com.anthonyzhu.bikebuddy.util.LogUtil.makeLogTag;
 
 /**
  * The base class for all fragment classes.

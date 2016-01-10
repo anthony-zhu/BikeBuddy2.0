@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.ui.quote;
+package com.anthonyzhu.bikebuddy.ui.quote;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -7,10 +7,10 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ListView;
 
-import com.anthonyzhu.androidtemplate.R;
-import com.anthonyzhu.androidtemplate.dummy.DummyContent;
-import com.anthonyzhu.androidtemplate.ui.base.BaseActivity;
-import com.anthonyzhu.androidtemplate.util.LogUtil;
+import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.dummy.DummyContent;
+import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
+import com.anthonyzhu.bikebuddy.util.LogUtil;
 
 /**
  * Lists all available quotes. This Activity supports a single pane (= smartphones) and a two pane mode (= large screens with >= 600dp width).

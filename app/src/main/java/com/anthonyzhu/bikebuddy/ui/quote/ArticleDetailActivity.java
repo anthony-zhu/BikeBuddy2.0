@@ -1,9 +1,9 @@
-package com.anthonyzhu.androidtemplate.ui.quote;
+package com.anthonyzhu.bikebuddy.ui.quote;
 
 import android.os.Bundle;
 
-import com.anthonyzhu.androidtemplate.R;
-import com.anthonyzhu.androidtemplate.ui.base.BaseActivity;
+import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
 
 /**
  * Simple wrapper for {@link ArticleDetailFragment}

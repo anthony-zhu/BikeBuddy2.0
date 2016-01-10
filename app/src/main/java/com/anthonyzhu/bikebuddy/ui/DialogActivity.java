@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.ui;
+package com.anthonyzhu.bikebuddy.ui;
 
 import android.app.Activity;
 import android.content.Intent;
@@ -11,7 +11,7 @@ import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.anthonyzhu.androidtemplate.R;
+import com.anthonyzhu.bikebuddy.R;
 
 public class DialogActivity extends Activity {
     private CountDownTimer timer;
@@ -82,7 +82,7 @@ public class DialogActivity extends Activity {
 
     /**
      * Callback method defined by the View
-     * @param v
+     * @param v view from button
      */
     public void dismissDialog(View v) {
         timer.cancel();
@@ -91,7 +91,7 @@ public class DialogActivity extends Activity {
 
     /**
      * Callback method defined by the View
-     * @param v
+     * @param v view from button
      */
     public void confirmDialog(View v) {
         timer.cancel();

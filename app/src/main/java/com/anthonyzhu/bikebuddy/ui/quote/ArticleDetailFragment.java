@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.ui.quote;
+package com.anthonyzhu.bikebuddy.ui.quote;
 
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -13,10 +13,10 @@ import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
 
-import com.anthonyzhu.androidtemplate.R;
-import com.anthonyzhu.androidtemplate.dummy.DummyContent;
-import com.anthonyzhu.androidtemplate.ui.base.BaseActivity;
-import com.anthonyzhu.androidtemplate.ui.base.BaseFragment;
+import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.dummy.DummyContent;
+import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
+import com.anthonyzhu.bikebuddy.ui.base.BaseFragment;
 import com.bumptech.glide.Glide;
 
 import butterknife.Bind;
@@ -83,9 +83,9 @@ public class ArticleDetailFragment extends BaseFragment {
         if (dummyItem != null) {
             loadBackdrop();
             collapsingToolbar.setTitle(dummyItem.title);
-            author.setText("Your ride on " + dummyItem.date);
+            author.setText("You rode on " + dummyItem.date);
             quote.setText("You rode " + dummyItem.content + " miles");
-            rideInfo.setText("-Your ride lasted: "+ dummyItem.rideTime  +". \n-Your average speed was " + dummyItem.avSpeed +" mph  \n-Your top speed was "+dummyItem.tSpeed +" mph  \n-Your largest elevation change was " + dummyItem.elev + " floors.");
+            rideInfo.setText("-Your ride lasted: "+ dummyItem.rideTime +". \n-Your average speed was " + dummyItem.avSpeed +" mph  \n-Your top speed was "+dummyItem.tSpeed +" mph  \n-Your largest elevation change was " + dummyItem.elev + " floors.");
             quatInfo.setText("Safe Brake percentages: "+ dummyItem.goodSt + "% \n-Number of Dangerous Stops:" +dummyItem.badSt );
             ratBar.setRating(dummyItem.rat);
         }
