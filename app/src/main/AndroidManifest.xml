@@ -1,5 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.anthonyzhu.androidtemplate">
+    package="com.anthonyzhu.bikebuddy">
 
     <uses-permission android:name="android.permission.BLUETOOTH" />
     <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" />
@@ -23,7 +23,7 @@
             android:name="com.google.android.gms.version"
             android:value="@integer/google_play_services_version" />
 
-        <activity android:name=".ui.MainActivity"
+        <activity android:name="com.anthonyzhu.bikebuddy.ui.MainActivity"
             android:label="Bike Buddy"
             android:launchMode="singleTask">
             <intent-filter>
@@ -32,25 +32,25 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.quote.ListActivity"
+        <activity android:name="com.anthonyzhu.bikebuddy.ui.quote.ListActivity"
             android:label="Old Rides"
-            android:parentActivityName="com.anthonyzhu.androidtemplate.ui.MainActivity"/>
-        <activity android:name=".ui.quote.ArticleDetailActivity"
+            android:parentActivityName="com.anthonyzhu.bikebuddy.ui.MainActivity"/>
+        <activity android:name="com.anthonyzhu.bikebuddy.ui.quote.ArticleDetailActivity"
             android:label=""
-            android:parentActivityName="com.anthonyzhu.androidtemplate.ui.quote.ListActivity"/>
-        <activity android:name=".ui.EmergencyContact"
+            android:parentActivityName="com.anthonyzhu.bikebuddy.ui.quote.ListActivity"/>
+        <activity android:name="com.anthonyzhu.bikebuddy.ui.EmergencyContact"
             android:label="Emergency Contact"
-            android:parentActivityName="com.anthonyzhu.androidtemplate.ui.MainActivity"/>
+            android:parentActivityName="com.anthonyzhu.bikebuddy.ui.MainActivity"/>
 
-        <activity android:name=".ui.DialogActivity"
+        <activity android:name="com.anthonyzhu.bikebuddy.ui.DialogActivity"
             android:label="Impact Alert"
             android:theme="@android:style/Theme.Holo.Light.Dialog">
         </activity>
 
         <!--
-        <activity android:name="com.anthonyzhu.androidtemplate.ui.SettingsActivity"
+        <activity android:name="bikebuddyttingsActivity"
             android:label="Emergency Contacts"
-            android:parentActivityName="com.anthonyzhu.androidtemplate.ui.quote.ListActivity"/>
+            android:parentActivityName="bikebuddyote.ListActivity"/>
             -->
 
     </application>

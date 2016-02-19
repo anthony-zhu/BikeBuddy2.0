@@ -1,6 +1,6 @@
-package com.anthonyzhu.androidtemplate.dummy;
+package com.anthonyzhu.bikebuddy.dummy;
 
-import com.anthonyzhu.androidtemplate.R;
+import com.anthonyzhu.bikebuddy.R;
 
 import java.util.ArrayList;
 import java.util.HashMap;

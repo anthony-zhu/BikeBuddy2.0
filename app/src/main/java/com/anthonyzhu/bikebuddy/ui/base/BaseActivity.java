@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.ui.base;
+package com.anthonyzhu.bikebuddy.ui.base;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,13 +10,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 
-import com.anthonyzhu.androidtemplate.R;
-import com.anthonyzhu.androidtemplate.ui.MainActivity;
-import com.anthonyzhu.androidtemplate.ui.EmergencyContact;
-import com.anthonyzhu.androidtemplate.ui.quote.ListActivity;
+import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.ui.MainActivity;
+import com.anthonyzhu.bikebuddy.ui.EmergencyContact;
+import com.anthonyzhu.bikebuddy.ui.quote.ListActivity;
 
-import static com.anthonyzhu.androidtemplate.util.LogUtil.logD;
-import static com.anthonyzhu.androidtemplate.util.LogUtil.makeLogTag;
+import static com.anthonyzhu.bikebuddy.util.LogUtil.logD;
+import static com.anthonyzhu.bikebuddy.util.LogUtil.makeLogTag;
 
 /**
  * The base class for all Activity classes.

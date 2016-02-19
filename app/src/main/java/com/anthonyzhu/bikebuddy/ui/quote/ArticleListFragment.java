@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.ui.quote;
+package com.anthonyzhu.bikebuddy.ui.quote;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
@@ -20,8 +20,8 @@ import android.widget.TextView;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 
-import com.anthonyzhu.androidtemplate.R;
-import com.anthonyzhu.androidtemplate.dummy.DummyContent;
+import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.dummy.DummyContent;
 
 /**
  * Shows a list of all available quotes.

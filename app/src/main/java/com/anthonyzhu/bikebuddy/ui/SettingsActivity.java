@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.ui;
+package com.anthonyzhu.bikebuddy.ui;
 
 import android.os.Bundle;
 import android.preference.PreferenceFragment;
@@ -6,8 +6,8 @@ import android.support.v7.app.ActionBar;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.anthonyzhu.androidtemplate.R;
-import com.anthonyzhu.androidtemplate.ui.base.BaseActivity;
+import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
 
 /**
  * This Activity provides several settings. Activity contains {@link PreferenceFragment} as inner class.

@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.util;
+package com.anthonyzhu.bikebuddy.util;
 
 import android.util.Log;
 

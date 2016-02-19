@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.ui;
+package com.anthonyzhu.bikebuddy.ui;
 
 import android.Manifest;
 import android.app.Activity;
@@ -21,8 +21,8 @@ import android.widget.Chronometer;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.anthonyzhu.androidtemplate.R;
-import com.anthonyzhu.androidtemplate.ui.base.BaseActivity;
+import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;

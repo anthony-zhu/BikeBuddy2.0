@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate.ui;
+package com.anthonyzhu.bikebuddy.ui;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,8 +13,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.anthonyzhu.androidtemplate.R;
-import com.anthonyzhu.androidtemplate.ui.base.BaseActivity;
+import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
 
 import butterknife.ButterKnife;
 import butterknife.OnClick;
@@ -27,8 +27,8 @@ import butterknife.OnClick;
 public class EmergencyContact extends BaseActivity {
 
     static final int PICK_CONTACT_REQUEST = 1;  // The request code
-    public static final String STORE_DATA = "com.anthonyzhu.androidtemplate.STORE_DATA";
-    public static final String PHONE_NUMBER = "com.anthonyzhu.androidtemplate.PHONE_NUMBER";
+    public static final String STORE_DATA = "com.anthonyzhu.bikebuddy.STORE_DATA";
+    public static final String PHONE_NUMBER = "com.anthonyzhu.bikebuddy.PHONE_NUMBER";
     public static EditText mEdit;
 
     @Override

@@ -1,4 +1,4 @@
-package com.anthonyzhu.androidtemplate;
+package com.anthonyzhu.bikebuddy;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;
