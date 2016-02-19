@@ -1,4 +1,4 @@
-package com.anthonyzhu.bikebuddy.ui.quote;
+package com.anthonyzhu.bikebuddy.ui.ride;
 
 import android.os.Bundle;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -14,7 +14,8 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.anthonyzhu.bikebuddy.R;
-import com.anthonyzhu.bikebuddy.dummy.DummyContent;
+import com.anthonyzhu.bikebuddy.database.Ride;
+import com.anthonyzhu.bikebuddy.database.RideHandler;
 import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
 import com.anthonyzhu.bikebuddy.ui.base.BaseFragment;
 import com.bumptech.glide.Glide;
@@ -22,7 +23,7 @@ import com.bumptech.glide.Glide;
 import butterknife.Bind;
 
 /**
- * Shows the quote detail page.
+ * Shows the distance detail page.
  *
  * Created by Andreas Schrade on 14.12.2015.
  */
@@ -34,15 +35,22 @@ public class ArticleDetailFragment extends BaseFragment {
     public static final String ARG_ITEM_ID = "item_id";
 
     /**
-     * The dummy content of this fragment.
+     * The ride content of this fragment.
      */
-    private DummyContent.DummyItem dummyItem;
+    private Ride ride;
 
-    @Bind(R.id.quote)
-    TextView quote;
+    /**
+     * Image IDs to cycle through
+     */
+    public final static Integer[] imageResIds = new Integer[] {
+            R.drawable.p1, R.drawable.p2, R.drawable.p3,
+            R.drawable.p4, R.drawable.p5};
 
-    @Bind(R.id.author)
-    TextView author;
+    @Bind(R.id.distance)
+    TextView distance;
+
+    @Bind(R.id.dateTime)
+    TextView dateTime;
 
     @Bind(R.id.backdrop)
     ImageView backdropImg;
@@ -53,8 +61,8 @@ public class ArticleDetailFragment extends BaseFragment {
     @Bind(R.id.rideInfo)
     TextView rideInfo;
 
-    @Bind(R.id.quatInfo)
-    TextView quatInfo;
+    @Bind(R.id.extraStats)
+    TextView extraStats;
 
     @Bind(R.id.ratBar)
     RatingBar ratBar;
@@ -64,8 +72,9 @@ public class ArticleDetailFragment extends BaseFragment {
         super.onCreate(savedInstanceState);
 
         if (getArguments().containsKey(ARG_ITEM_ID)) {
-            // load dummy item by using the passed item ID.
-            dummyItem = DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
+            // load ride item by using the passed item ID.
+            ride = RideHandler.getInstance(getActivity()).getRide(getArguments().getLong(ARG_ITEM_ID));
+//                    DummyContent.ITEM_MAP.get(getArguments().getString(ARG_ITEM_ID));
         }
 
         setHasOptionsMenu(true);
@@ -73,28 +82,32 @@ public class ArticleDetailFragment extends BaseFragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View rootView = inflateAndBind(inflater, container, R.layout.fragment_article_detail);
+        View rootView = inflateAndBind(inflater, container, R.layout.fragment_ride_detail);
 
         if (!((BaseActivity) getActivity()).providesActivityToolbar()) {
             // No Toolbar present. Set include_toolbar:
             ((BaseActivity) getActivity()).setToolbar((Toolbar) rootView.findViewById(R.id.toolbar));
         }
 
-        if (dummyItem != null) {
+        if (ride != null) {
             loadBackdrop();
-            collapsingToolbar.setTitle(dummyItem.title);
-            author.setText("You rode on " + dummyItem.date);
-            quote.setText("You rode " + dummyItem.content + " miles");
-            rideInfo.setText("-Your ride lasted: "+ dummyItem.rideTime +". \n-Your average speed was " + dummyItem.avSpeed +" mph  \n-Your top speed was "+dummyItem.tSpeed +" mph  \n-Your largest elevation change was " + dummyItem.elev + " floors.");
-            quatInfo.setText("Safe Brake percentages: "+ dummyItem.goodSt + "% \n-Number of Dangerous Stops:" +dummyItem.badSt );
-            ratBar.setRating(dummyItem.rat);
+            collapsingToolbar.setTitle("Ride #" + ride.id);
+            String dateTimeText = "You rode on " + ride.date + " at " + ride.time;
+            String distanceText = "You rode " + ride.distance + " miles";
+            String rideInfoText = "-Your ride lasted: "+ ride.rideTime +". \n-Your average speed was " + ride.averageSpeed +" mph.";
+            String extraStatsText = "Safe Brake percentages: "+ ride.goodStops + "% \n-Number of Dangerous Stops:" + ride.badStops;
+            dateTime.setText(dateTimeText);
+            distance.setText(distanceText);
+            rideInfo.setText(rideInfoText);
+            extraStats.setText(extraStatsText);
+            ratBar.setRating(ride.rating);
         }
 
         return rootView;
     }
 
     private void loadBackdrop() {
-        Glide.with(this).load(dummyItem.photoId).centerCrop().into(backdropImg);
+        Glide.with(this).load(imageResIds[(int) ride.id % 5]).centerCrop().into(backdropImg);
     }
 
     @Override
@@ -113,10 +126,10 @@ public class ArticleDetailFragment extends BaseFragment {
         return super.onOptionsItemSelected(item);
     }
 
-    public static ArticleDetailFragment newInstance(String itemID) {
+    public static ArticleDetailFragment newInstance(long itemID) {
         ArticleDetailFragment fragment = new ArticleDetailFragment();
         Bundle args = new Bundle();
-        args.putString(ArticleDetailFragment.ARG_ITEM_ID, itemID);
+        args.putLong(ArticleDetailFragment.ARG_ITEM_ID, itemID);
         fragment.setArguments(args);
         return fragment;
     }

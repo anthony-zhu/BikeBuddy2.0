@@ -33,7 +33,7 @@
         android:layout_marginTop="20dp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="@string/main_default_speed" />
+        android:text="@string/main_default_location" />
 
     <TextView
         android:id="@+id/main_total_distance"

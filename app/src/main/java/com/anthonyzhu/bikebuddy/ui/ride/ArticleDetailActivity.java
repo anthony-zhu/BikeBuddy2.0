@@ -1,4 +1,4 @@
-package com.anthonyzhu.bikebuddy.ui.quote;
+package com.anthonyzhu.bikebuddy.ui.ride;
 
 import android.os.Bundle;
 
@@ -22,7 +22,7 @@ public class ArticleDetailActivity extends BaseActivity {
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
 
-        ArticleDetailFragment fragment =  ArticleDetailFragment.newInstance(getIntent().getStringExtra(ArticleDetailFragment.ARG_ITEM_ID));
+        ArticleDetailFragment fragment =  ArticleDetailFragment.newInstance(getIntent().getLongExtra(ArticleDetailFragment.ARG_ITEM_ID, 1));
         getFragmentManager().beginTransaction().replace(R.id.article_detail_container, fragment).commit();
     }
 

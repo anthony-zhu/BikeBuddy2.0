@@ -2,11 +2,16 @@ package com.anthonyzhu.bikebuddy.ui;
 
 import android.Manifest;
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
@@ -22,6 +27,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.anthonyzhu.bikebuddy.R;
+import com.anthonyzhu.bikebuddy.database.Ride;
+import com.anthonyzhu.bikebuddy.database.RideHandler;
 import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -33,6 +40,13 @@ import com.google.android.gms.location.LocationServices;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 import app.akexorcist.bluetoothspp.library.BluetoothSPP;
 import app.akexorcist.bluetoothspp.library.BluetoothSPP.AutoConnectionListener;
@@ -51,30 +65,33 @@ import butterknife.ButterKnife;
 public class MainActivity extends BaseActivity implements
         ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
     private double accel_x, accel_y, accel_z;
-    private double max_accel_x, max_accel_y, max_accel_z; // For testing
 
     private static TextView mEdisonStatus;
     private static TextView mLatitudeView;
     private static TextView mLongitudeView;
-    private static TextView mSpeedView;
+    private static TextView mLocationNear;
     private static TextView mTotalDistanceView;
     private static TextView mAverageSpeedView;
     private static Chronometer mChronometer;
 
     private static BluetoothSPP bt;
+    private Location accLoc;
 
     protected GoogleApiClient mGoogleApiClient;
     protected LocationRequest mLocationRequest;
     protected float mTotalDistance;
     protected float mAverageSpeed;
+    int mRideTime;
     protected Location mCurrentLocation;
     protected Boolean mRequestingLocationUpdates;
+    protected Boolean isRunning;
+    boolean hasConnectedWifi;
+    boolean hasConnectedMobile;
 
     // Keys for storing activity state in the Bundle.
     protected final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
     protected final static String LOCATION_KEY = "location-key";
     protected final static String DISTANCE_KEY = "distance-key";
-    //protected final static String BLUETOOTH_KEY = "bluetooth-key";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +106,8 @@ public class MainActivity extends BaseActivity implements
         // Set up accumulative distance and average speed
         mTotalDistance = 0;
         mAverageSpeed = 0;
-        // TODO: Set savedInstanceState
+        mRideTime = 0;
+        // TODO: Set savedInstanceState?
 
         // Update values using data stored in the Bundle.
         updateValuesFromBundle(savedInstanceState);
@@ -98,18 +116,13 @@ public class MainActivity extends BaseActivity implements
 
         // Edison Status line
         mEdisonStatus = (TextView) findViewById(R.id.main_subhead);
-        TextView mStatusView = (TextView) findViewById(R.id.main_title);
         mLatitudeView = (TextView) findViewById(R.id.main_latitude);
         mLongitudeView = (TextView) findViewById(R.id.main_longitude);
-        mSpeedView = (TextView) findViewById(R.id.main_speed);
+        mLocationNear = (TextView) findViewById(R.id.main_speed);
         mTotalDistanceView = (TextView) findViewById(R.id.main_total_distance);
         mAverageSpeedView = (TextView) findViewById(R.id.main_average_speed);
         mChronometer = (Chronometer) findViewById(R.id.main_timer);
 
-        // Set initial max accelerations (For testing)
-        max_accel_x = 0;
-        max_accel_y = 0;
-        max_accel_z = 0;
 
         // Use Contact 'Me' to build main_status_view
         Cursor c = this.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
@@ -119,6 +132,7 @@ public class MainActivity extends BaseActivity implements
             int position = c.getPosition();
             if (count == 1 && position == 0) {
                 String user_greeting = "Hello " + c.getString(c.getColumnIndex("DISPLAY_NAME"));
+                TextView mStatusView = (TextView) findViewById(R.id.main_title);
                 mStatusView.setText(user_greeting);
             }
             c.close();
@@ -183,30 +197,21 @@ public class MainActivity extends BaseActivity implements
                     accel_y = accelObject.getDouble("y");
                     accel_z = accelObject.getDouble("z");
 
-                    // Log data for debugging
-                    // Log.i("Check", "x : " + accel_x + " y: " + accel_y + " z: " + accel_z);
-
-                    // Update max acceleration values
-                    if (Math.abs(accel_x) > max_accel_x)
-                        max_accel_x = Math.abs(accel_x);
-                    if (Math.abs(accel_y) > max_accel_y)
-                        max_accel_y = Math.abs(accel_y);
-                    if (Math.abs(accel_z) > max_accel_z)
-                        max_accel_z = Math.abs(accel_z);
-
+                    Log.i("Check", "x: " + accel_x + ", y: " + accel_y + ", z: " + accel_z);
                     // Check for impact
-                    if (Math.abs(accel_x) >= 4 ||
-                            Math.abs(accel_y) >= 4 ||
-                            Math.abs(accel_z) >= 4) {
+                    if (Math.sqrt(Math.pow(accel_x, 2) + Math.pow(accel_z, 2)) >= 8.0) {
 
                         // Turn off Bluetooth service
                         bt.disconnect();
 
+                        // Disconnect Location service
                         if (mGoogleApiClient.isConnected()) {
                             stopLocationUpdates();
                         }
-
                         mRequestingLocationUpdates = false;
+
+                        // Save ride
+                        saveRide();
 
                         // Launch Dialog Activity
                         Intent intent = new Intent(MainActivity.this, DialogActivity.class);
@@ -259,10 +264,21 @@ public class MainActivity extends BaseActivity implements
         btnMain.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
-                    mRequestingLocationUpdates = false;
-                    stopLocationUpdates();
+                    isRunning = false;
+
+                    // Turn off Bluetooth service
                     bt.disconnect();
+
+                    // Disconnect Location service
+                    if (mGoogleApiClient.isConnected()) {
+                        stopLocationUpdates();
+                    }
+                    mRequestingLocationUpdates = false;
+
+                    // Save ride
+                    saveRide();
                 } else {
+                    isRunning = true;
                     Intent intent = new Intent(MainActivity.this, DeviceList.class);
                     startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
                 }
@@ -374,6 +390,7 @@ public class MainActivity extends BaseActivity implements
                     + Integer.parseInt(array[1]) * 60 * 1000
                     + Integer.parseInt(array[2]) * 1000;
         }
+        mRideTime = elapsed;
         mAverageSpeed = 1000 * 3600 * mTotalDistance / elapsed;
         String average_speed = "Your average speed was " + mAverageSpeed + " mph";
         mAverageSpeedView.setText(average_speed);
@@ -390,36 +407,79 @@ public class MainActivity extends BaseActivity implements
     @Override
     public void onLocationChanged(Location location) {
         if (location != null) {
-            if (mCurrentLocation != null) {
-                double temp_distance = mCurrentLocation.distanceTo(location);
-                if (temp_distance > location.getAccuracy()) {
-                    Toast.makeText(getApplicationContext()
-                            , "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude() +
-                                    ", Distance: " + temp_distance + ", Accuracy: " + location.getAccuracy()
-                            , Toast.LENGTH_LONG).show();
-                    mTotalDistance += temp_distance / 1609.344;
+            //double temp_distance = 0;
+            double acc = location.getAccuracy();
+
+            hasConnectedWifi = false;
+            hasConnectedMobile = false;
+
+            ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+            NetworkInfo[] netInfo = cm.getAllNetworkInfo();
+            for (NetworkInfo ni : netInfo) {
+                if (ni.getTypeName().equalsIgnoreCase("WIFI"))
+                    if (ni.isConnected())
+                        hasConnectedWifi = true;
+                if (ni.getTypeName().equalsIgnoreCase("MOBILE"))
+                    if (ni.isConnected())
+                        hasConnectedMobile = true;
+            }
+
+            if (hasConnectedWifi || hasConnectedMobile) {
+                Geocoder geocoder = new Geocoder(this, Locale.getDefault());
+                Address address;
+                List<Address> list = null;
+                try {
+                    list = geocoder.getFromLocation(location.getLatitude(), location.getLongitude(), 1);
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-                // Update UI
-                double temp_speed = location.getSpeed() * 3600 / 1609.344;
-                String current_speed = "Current speed is " + temp_speed + " mph";
-                String total_distance = "Total distance is " + mTotalDistance + " miles";
-                mSpeedView.setText(current_speed);
-                mTotalDistanceView.setText(total_distance);
-            }
-            else {
-                Toast.makeText(getApplicationContext()
-                        , "Latitude: " + location.getLatitude() + ", Longitude: " + location.getLongitude()
-                        , Toast.LENGTH_LONG).show();
-                mCurrentLocation = location;
+                try {
+                    address = list.get(0);
+                    String locationNearString = "Your address is near " + address.getAddressLine(0) + ", " + address.getLocality();
+                    mLocationNear.setText(locationNearString);
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
             }
 
-            // Update UI
-            String current_latitude = "Current latitude is " + location.getLatitude();
-            String current_longitude = "Current longitude is " + location.getLongitude();
-            mLatitudeView.setText(current_latitude);
-            mLongitudeView.setText(current_longitude);
+            if (isRunning) {
+                if (accLoc == null) {
+                    accLoc = location;
+                }
+                if (accLoc.distanceTo(location) > 2.5 * acc) {
+                    double temp_adistance = accLoc.distanceTo(location);
+                    Log.i("Check", "Latitude: " + location.getLatitude() + ", Longitude: " +
+                            location.getLongitude() + ", Distance: " + temp_adistance);
+                    mTotalDistance += temp_adistance / 1609.344;
+                    accLoc = location;
+                }
+            }
 
+            if (!isRunning) {
+                float acc2 = location.getAccuracy();
+                if (accLoc.distanceTo(location) > 1.2 * acc2) {
+                    double temp_adistance = accLoc.distanceTo(location);
+                    Log.i("Check", "Latitude: " + location.getLatitude() + ", Longitude: " +
+                            location.getLongitude() + ", Distance: " + temp_adistance);
+                    mTotalDistance += temp_adistance / 1609.344;
+                    accLoc = location;
+                }
+            }
+
+            String currentLatitudeText = "Current latitude is " + location.getLatitude();
+            String currentLongitudeText = "Current longitude is " + location.getLongitude();
+            mLatitudeView.setText(currentLatitudeText);
+            mLongitudeView.setText(currentLongitudeText);
         }
+        //double temp_speed = location.getSpeed() * 3600 / 1609.344;
+
+        // Update UI
+        //mLocationNear.setText("Current speed is " + temp_speed + " mph");
+        String totalDistanceText = "Total distance is " + mTotalDistance + " miles";
+        mTotalDistanceView.setText(totalDistanceText);
+
+        mCurrentLocation = location;
+
     }
 
     @Override
@@ -446,8 +506,18 @@ public class MainActivity extends BaseActivity implements
             stopLocationUpdates();
         }
         super.onDestroy();
-        mGoogleApiClient.disconnect();
+        // Turn off Bluetooth service
         bt.disconnect();
+
+        // Disconnect Location service
+        if (mGoogleApiClient.isConnected()) {
+            stopLocationUpdates();
+        }
+        mGoogleApiClient.disconnect();
+        mRequestingLocationUpdates = false;
+
+        // Save ride
+        saveRide();
     }
 
     public void onStart() {
@@ -536,6 +606,47 @@ public class MainActivity extends BaseActivity implements
 
     public void setup() { }
 
+    public void saveRide() {
+        // Create a new ride.
+        Ride ride = new Ride();
+
+        // Set date and time
+        SimpleDateFormat dateFormat = new SimpleDateFormat("MM/dd/yyyy", Locale.US);
+        SimpleDateFormat timeFormat = new SimpleDateFormat("hh:mm:ss aa", Locale.US);
+        Calendar c = Calendar.getInstance();
+        Date presentTime = c.getTime();
+        String currentDate = dateFormat.format(presentTime);
+        String currentTime = timeFormat.format(presentTime);
+
+        ride.date = currentDate;
+        ride.time = currentTime;
+
+        // Set distance
+        ride.distance = mTotalDistance;
+
+        // Set average speed
+        ride.averageSpeed = mAverageSpeed;
+
+        // Set ride time
+        int rideInSeconds = mRideTime / 1000;
+        ride.rideTime = rideInSeconds / 3600 + ":" + (rideInSeconds % 3600) / 60 + ":" + rideInSeconds % 60;
+
+        // Set good stops (not useful?)
+        ride.goodStops = 140;
+
+        // Set bad stops (not useful?)
+        ride.badStops = 5;
+
+        // Set rating (not useful?)
+        ride.rating = 4;
+
+        if (RideHandler.getInstance(this).putRide(ride)) {
+            Toast.makeText(getApplicationContext()
+                    , "Ride saved!"
+                    , Toast.LENGTH_LONG).show();
+        }
+
+    }
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
         savedInstanceState.putParcelable(LOCATION_KEY, mCurrentLocation);

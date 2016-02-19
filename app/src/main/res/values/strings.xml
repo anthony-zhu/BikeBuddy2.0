@@ -9,7 +9,7 @@
     <string name="main_subhead">Edison is not connected</string>
     <string name="main_default_latitude">Current latitude not tracked</string>
     <string name="main_default_longitude">Current longitude not tracked</string>
-    <string name="main_default_speed">Current speed not tracked</string>
+    <string name="main_default_location">Current location not tracked</string>
     <string name="main_default_total_distance">Total Distance not tracked</string>
 
 
@@ -30,6 +30,7 @@
     <string name="navigation_main">Connect to Edison</string>
     <string name="navigation_old_rides">Old Rides</string>
     <string name="navigation_emergency_contact">Emergency Contact</string>
+
 
     <string name="edison_connected">Edison is connected</string>
     <string name="edison_connecting">Edison is connecting&#8230;</string>

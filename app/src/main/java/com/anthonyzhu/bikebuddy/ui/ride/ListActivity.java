@@ -1,4 +1,4 @@
-package com.anthonyzhu.bikebuddy.ui.quote;
+package com.anthonyzhu.bikebuddy.ui.ride;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,12 +8,11 @@ import android.view.MenuItem;
 import android.widget.ListView;
 
 import com.anthonyzhu.bikebuddy.R;
-import com.anthonyzhu.bikebuddy.dummy.DummyContent;
 import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
 import com.anthonyzhu.bikebuddy.util.LogUtil;
 
 /**
- * Lists all available quotes. This Activity supports a single pane (= smartphones) and a two pane mode (= large screens with >= 600dp width).
+ * Lists all available rides. This Activity supports a single pane (= smartphones) and a two pane mode (= large screens with >= 600dp width).
  *
  * Created by Andreas Schrade on 14.12.2015.
  */
@@ -36,20 +35,21 @@ public class ListActivity extends BaseActivity implements ArticleListFragment.Ca
             enableActiveItemState();
         }
 
-        if (savedInstanceState == null && twoPaneMode) {
-            setupDetailFragment();
-        }
+        // TODO testing
+//        if (savedInstanceState == null && twoPaneMode) {
+//            setupDetailFragment();
+//        }
     }
 
     /**
      * Called when an item has been selected
      *
-     * @param id the selected quote ID
+     * @param id the selected ride ID
      */
     @Override
-    public void onItemSelected(String id) {
+    public void onItemSelected(long id) {
         if (twoPaneMode) {
-            // Show the quote detail information by replacing the DetailFragment via transaction.
+            // Show the ride detail information by replacing the DetailFragment via transaction.
             ArticleDetailFragment fragment = ArticleDetailFragment.newInstance(id);
             getFragmentManager().beginTransaction().replace(R.id.article_detail_container, fragment).commit();
         } else {
@@ -66,10 +66,11 @@ public class ListActivity extends BaseActivity implements ArticleListFragment.Ca
         ab.setDisplayHomeAsUpEnabled(true);
     }
 
-    private void setupDetailFragment() {
-        ArticleDetailFragment fragment =  ArticleDetailFragment.newInstance(DummyContent.ITEMS.get(0).id);
-        getFragmentManager().beginTransaction().replace(R.id.article_detail_container, fragment).commit();
-    }
+    // TODO testing
+//    private void setupDetailFragment() {
+//        ArticleDetailFragment fragment =  ArticleDetailFragment.newInstance(DummyContent.ITEMS.get(0).id);
+//        getFragmentManager().beginTransaction().replace(R.id.article_detail_container, fragment).commit();
+//    }
 
     /**
      * Enables the functionality that selected items are automatically highlighted.

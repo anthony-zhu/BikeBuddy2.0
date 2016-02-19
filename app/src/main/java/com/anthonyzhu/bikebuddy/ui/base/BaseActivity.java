@@ -13,7 +13,7 @@ import android.view.MenuItem;
 import com.anthonyzhu.bikebuddy.R;
 import com.anthonyzhu.bikebuddy.ui.MainActivity;
 import com.anthonyzhu.bikebuddy.ui.EmergencyContact;
-import com.anthonyzhu.bikebuddy.ui.quote.ListActivity;
+import com.anthonyzhu.bikebuddy.ui.ride.ListActivity;
 
 import static com.anthonyzhu.bikebuddy.util.LogUtil.logD;
 import static com.anthonyzhu.bikebuddy.util.LogUtil.makeLogTag;

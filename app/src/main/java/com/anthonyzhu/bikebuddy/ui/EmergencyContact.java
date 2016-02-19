@@ -95,11 +95,18 @@ public class EmergencyContact extends BaseActivity {
                 // Consider using CursorLoader to perform the query.
                 Cursor cursor = getContentResolver()
                         .query(contactUri, projection, null, null, null);
-                cursor.moveToFirst();
+                try {
+                    cursor.moveToFirst();
+                }
+                catch (NullPointerException e) {
+                    e.printStackTrace();
+                }
 
                 // Retrieve the phone number from the NUMBER column
                 int column = cursor.getColumnIndex(ContactsContract.CommonDataKinds.Phone.NUMBER);
                 String number = cursor.getString(column);
+
+                cursor.close();
 
                 // Set phone number field
                 mEdit.setText(number);
