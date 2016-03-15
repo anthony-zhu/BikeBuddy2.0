@@ -22,7 +22,7 @@ public class RideHandler extends SQLiteOpenHelper {
         return singleton;
     }
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     private static final String DATABASE_NAME = "bikebuddy";
     private final Context context;
 

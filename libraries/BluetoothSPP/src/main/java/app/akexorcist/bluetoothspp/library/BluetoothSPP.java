@@ -345,7 +345,7 @@ public class BluetoothSPP {
     
                 public void onDeviceDisconnected() { }
                 public void onDeviceConnectionFailed() {
-                	Log.e("CHeck", "Failed");
+                	Log.e("Check", "Failed");
                     if(isServiceRunning) {
                         if(isAutoConnectionEnabled) {
                             c++;

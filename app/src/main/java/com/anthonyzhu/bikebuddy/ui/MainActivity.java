@@ -1,7 +1,6 @@
 package com.anthonyzhu.bikebuddy.ui;
 
 import android.Manifest;
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -13,6 +12,7 @@ import android.location.Location;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.SystemClock;
 import android.provider.ContactsContract;
 import android.support.v4.app.ActivityCompat;
@@ -23,6 +23,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,11 @@ import com.anthonyzhu.bikebuddy.R;
 import com.anthonyzhu.bikebuddy.database.Ride;
 import com.anthonyzhu.bikebuddy.database.RideHandler;
 import com.anthonyzhu.bikebuddy.ui.base.BaseActivity;
+import com.firebase.client.DataSnapshot;
+import com.firebase.client.Firebase;
+import com.firebase.client.FirebaseError;
+import com.firebase.client.MutableData;
+import com.firebase.client.Transaction;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.ConnectionCallbacks;
@@ -45,8 +51,10 @@ import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import app.akexorcist.bluetoothspp.library.BluetoothSPP;
 import app.akexorcist.bluetoothspp.library.BluetoothSPP.AutoConnectionListener;
@@ -54,7 +62,6 @@ import app.akexorcist.bluetoothspp.library.BluetoothSPP.BluetoothConnectionListe
 import app.akexorcist.bluetoothspp.library.BluetoothSPP.BluetoothStateListener;
 import app.akexorcist.bluetoothspp.library.BluetoothSPP.OnDataReceivedListener;
 import app.akexorcist.bluetoothspp.library.BluetoothState;
-import app.akexorcist.bluetoothspp.library.DeviceList;
 import butterknife.ButterKnife;
 
 /**
@@ -71,24 +78,36 @@ public class MainActivity extends BaseActivity implements
     private static TextView mLongitudeView;
     private static TextView mLocationNear;
     private static TextView mTotalDistanceView;
+    private static TextView mBadStopsView;
     private static TextView mAverageSpeedView;
     private static Chronometer mChronometer;
+    private static Button mBtnStart;
+    private static Button mBtnPause;
+    private static LinearLayout mRideLayout;
 
-    private static BluetoothSPP bt;
+    private BluetoothSPP bt;
     private Location accLoc;
 
+    private String mUser;
     protected GoogleApiClient mGoogleApiClient;
     protected LocationRequest mLocationRequest;
-    protected float mTotalDistance;
+    protected double mTotalDistance;
+    protected int mBadStops;
+//    protected int mBadStopsHill;
     protected float mAverageSpeed;
     int mRideTime;
     protected Location mCurrentLocation;
     protected Boolean mRequestingLocationUpdates;
     protected Boolean isRunning;
+    protected Boolean rideStopped;
     boolean hasConnectedWifi;
     boolean hasConnectedMobile;
 
-    // Keys for storing activity state in the Bundle.
+    protected Double[] queue;
+
+    Handler h = new Handler();
+
+    // Keys for storing activity state in the Bundle on screen rotation (not yet implemented)
     protected final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
     protected final static String LOCATION_KEY = "location-key";
     protected final static String DISTANCE_KEY = "distance-key";
@@ -100,17 +119,28 @@ public class MainActivity extends BaseActivity implements
         ButterKnife.bind(this);
         setupToolbar();
 
+        // Set up Firebase connection
+        Firebase.setAndroidContext(this);
+        Firebase.getDefaultConfig().setPersistenceEnabled(true);
+
         // Set up Location Services
         mRequestingLocationUpdates = false;
 
         // Set up accumulative distance and average speed
-        mTotalDistance = 0;
+        mUser = "User";
+        mTotalDistance = 0.0;
+        mBadStops = 0;
         mAverageSpeed = 0;
         mRideTime = 0;
-        // TODO: Set savedInstanceState?
+
+        queue = new Double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                0.0, 0.0}; // Array of size 35
 
         // Update values using data stored in the Bundle.
-        updateValuesFromBundle(savedInstanceState);
+//        updateValuesFromBundle(savedInstanceState);
+
         buildGoogleApiClient();
         createLocationRequest();
 
@@ -120,33 +150,12 @@ public class MainActivity extends BaseActivity implements
         mLongitudeView = (TextView) findViewById(R.id.main_longitude);
         mLocationNear = (TextView) findViewById(R.id.main_speed);
         mTotalDistanceView = (TextView) findViewById(R.id.main_total_distance);
+        mBadStopsView = (TextView) findViewById(R.id.main_bad_stops);
         mAverageSpeedView = (TextView) findViewById(R.id.main_average_speed);
         mChronometer = (Chronometer) findViewById(R.id.main_timer);
-
-
-        // Use Contact 'Me' to build main_status_view
-        Cursor c = this.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
-        if (c != null) {
-            int count = c.getCount();
-            c.moveToFirst();
-            int position = c.getPosition();
-            if (count == 1 && position == 0) {
-                String user_greeting = "Hello " + c.getString(c.getColumnIndex("DISPLAY_NAME"));
-                TextView mStatusView = (TextView) findViewById(R.id.main_title);
-                mStatusView.setText(user_greeting);
-            }
-            c.close();
-        }
-
-        // Check if preferences have been set
-        SharedPreferences settings = getSharedPreferences(EmergencyContact.STORE_DATA, MODE_PRIVATE);
-        String number = settings.getString(EmergencyContact.PHONE_NUMBER, "");
-        if (number.equals("")) {
-            // Open intent to Emergency Contacts
-            Intent intent = new Intent(MainActivity.this, EmergencyContact.class);
-            startActivity(intent);
-        }
-
+        mBtnStart = (Button) findViewById(R.id.start_button);
+        mBtnPause = (Button) findViewById(R.id.pause_button);
+        mRideLayout = (LinearLayout) findViewById(R.id.main_second);
 
         // Initialize new BluetoothSPP
         if (bt == null) {
@@ -161,27 +170,22 @@ public class MainActivity extends BaseActivity implements
             finish();
         }
 
+        // Use Contact 'Me' to build status greeting
+        buildContact();
+
+        // Check if preferences have been set
+        SharedPreferences settings = getSharedPreferences(EmergencyContact.STORE_DATA, MODE_PRIVATE);
+        String number = settings.getString(EmergencyContact.PHONE_NUMBER, "");
+        if (number.equals("")) {
+            // Open intent to Emergency Contacts
+            Intent intent = new Intent(MainActivity.this, EmergencyContact.class);
+            startActivity(intent);
+        }
+
         // Register BluetoothState Listener
         bt.setBluetoothStateListener(new BluetoothStateListener() {
             public void onServiceStateChanged(int state) {
-                switch (state) {
-                    case BluetoothState.STATE_CONNECTED:
-                        Log.i("Check", "State : Connected");
-                        mEdisonStatus.setText(getResources().getString(R.string.edison_connected));
-                        break;
-                    case BluetoothState.STATE_CONNECTING:
-                        Log.i("Check", "State : Connecting");
-                        mEdisonStatus.setText(getResources().getString(R.string.edison_connecting));
-                        break;
-                    case BluetoothState.STATE_LISTEN:
-                        Log.i("Check", "State : Listen");
-                        mEdisonStatus.setText(getResources().getString(R.string.edison_listening));
-                        break;
-                    case BluetoothState.STATE_NONE:
-                        Log.i("Check", "State : None");
-                        mEdisonStatus.setText(getResources().getString(R.string.edison_none));
-                        break;
-                }
+                updateStatus(state);
             }
         });
 
@@ -194,32 +198,82 @@ public class MainActivity extends BaseActivity implements
                     JSONObject mainObject = new JSONObject(message);
                     JSONObject accelObject = mainObject.getJSONObject("accel");
                     accel_x = accelObject.getDouble("x");
-                    accel_y = accelObject.getDouble("y");
-                    accel_z = accelObject.getDouble("z");
+                    accel_y = accelObject.getDouble("y");   // Vertical axis (accel due to gravity)
+                    accel_z = accelObject.getDouble("z");   // Forward/backward axis (accel due to braking)
 
-                    Log.i("Check", "x: " + accel_x + ", y: " + accel_y + ", z: " + accel_z);
-                    // Check for impact
-                    if (Math.sqrt(Math.pow(accel_x, 2) + Math.pow(accel_z, 2)) >= 8.0) {
+                    if (mRequestingLocationUpdates) {
+                        if (accel_y > 0.8) {
+                            queue = new Double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                    0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                    0.0, 0.0};
+//                            Log.i("Check", "Queue reset");
+                        } else {
+                            for (int i = 0; i < queue.length - 1; i++) {
+                                queue[i + 1] = queue[i];
+                            }
+                            queue[0] = accel_z;
+                            double on_hill = 0.0;
+                            for (int i = 0; i < queue.length - 5; i++) {
+                                on_hill += queue[i + 5] / (1.0 * queue.length - 5);
+                            }
 
-                        // Turn off Bluetooth service
-                        bt.disconnect();
+                            if (on_hill > 0.33) {
+//                                Log.i("Check", "Downhill");
+                                for (int i = 0; i < 5; i++) {
+                                    if (queue[i] < -0.7) {
+                                        mBadStops++;
+                                        String bad_stops = "Aggressive stops: " + mBadStops;
+                                        mBadStopsView.setText(bad_stops);
+                                        queue = new Double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                                0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                                0.0, 0.0};
+                                        break;
+                                    }
+                                }
+                            } else {
+//                                Log.i("Check", "Flat ground/uphill");
+                                double max_value = 0.0;
+                                Boolean brake = true;
 
-                        // Disconnect Location service
-                        if (mGoogleApiClient.isConnected()) {
-                            stopLocationUpdates();
+                                for (int i = 0; i < queue.length; i++) {
+                                    if (queue[i] < max_value) {
+                                        max_value = queue[i];
+                                    }
+                                    if (queue[i] > 0 || accel_y < 0.55) {
+                                        brake = false;
+                                    }
+                                }
+                                if (brake && max_value < -0.30) {
+                                    mBadStops++;
+                                    String bad_stops = "Aggressive stops: " + mBadStops;
+                                    mBadStopsView.setText(bad_stops);
+                                    queue = new Double[]{0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                            0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,
+                                            0.0, 0.0};
+                                }
+                            }
                         }
-                        mRequestingLocationUpdates = false;
 
-                        // Save ride
-                        saveRide();
+    //                    Log.i("Check", "x: " + accel_x + ", y: " + accel_y + ", z: " + accel_z);
+                        // Check for impact
+                        if (Math.sqrt(Math.pow(accel_x, 2) + Math.pow(accel_z, 2)) >= 10.0) {
+                            // End service
+                            endService();
 
-                        // Launch Dialog Activity
-                        Intent intent = new Intent(MainActivity.this, DialogActivity.class);
-                        if (mCurrentLocation != null) {
-                            intent.putExtra("CURRENT_LATITUDE", mCurrentLocation.getLatitude());
-                            intent.putExtra("CURRENT_LONGITUDE", mCurrentLocation.getLongitude());
+                            // Save ride
+                            saveRide();
+
+                            // Launch Dialog Activity
+                            Intent intent = new Intent(MainActivity.this, DialogActivity.class);
+                            if (mCurrentLocation != null) {
+                                intent.putExtra("CURRENT_LATITUDE", mCurrentLocation.getLatitude());
+                                intent.putExtra("CURRENT_LONGITUDE", mCurrentLocation.getLongitude());
+                            }
+                            startActivity(intent);
                         }
-                        startActivity(intent);
                     }
                 } catch (JSONException e) {
                     Log.e("MainActivity", "Could not parse malformed JSON");
@@ -259,62 +313,61 @@ public class MainActivity extends BaseActivity implements
             }
         });
 
-        // Register OnClick Listener for btnMain
-        Button btnMain = (Button) findViewById(R.id.main_button);
-        btnMain.setOnClickListener(new View.OnClickListener() {
+        // Register OnClickListener for btnStart (start ride)
+        mBtnStart.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                if (bt.getServiceState() == BluetoothState.STATE_CONNECTED) {
-                    isRunning = false;
-
-                    // Turn off Bluetooth service
-                    bt.disconnect();
-
-                    // Disconnect Location service
-                    if (mGoogleApiClient.isConnected()) {
-                        stopLocationUpdates();
-                    }
-                    mRequestingLocationUpdates = false;
-
-                    // Save ride
-                    saveRide();
-                } else {
-                    isRunning = true;
-                    Intent intent = new Intent(MainActivity.this, DeviceList.class);
-                    startActivityForResult(intent, BluetoothState.REQUEST_CONNECT_DEVICE);
-                }
+                mBtnStart.setVisibility(View.GONE);
+                mRideLayout.setVisibility(View.VISIBLE);
+                isRunning = true;
+                mRequestingLocationUpdates = true;
+                rideStopped = false;
+                mTotalDistance = 0.0;
+                mBadStops = 0;
+                mChronometer.setText("00:00");
+                mBadStopsView.setText(R.string.main_default_bad_stops);
+                mAverageSpeedView.setText(R.string.main_default_average_speed);
+                startLocationUpdates();
             }
         });
     }
 
-    private void updateValuesFromBundle(Bundle savedInstanceState) {
-        Log.i("MainActivity", "Updating values from bundle");
-        if (savedInstanceState != null) {
-            // Update the value of mRequestingLocationUpdates from the Bundle, and make sure that
-            // the Start Updates and Stop Updates buttons are correctly enabled or disabled.
-            if (savedInstanceState.keySet().contains(REQUESTING_LOCATION_UPDATES_KEY)) {
-                mRequestingLocationUpdates = savedInstanceState.getBoolean(
-                        REQUESTING_LOCATION_UPDATES_KEY);
-            }
-
-            // Update the value of mCurrentLocation from the Bundle and update the UI to show the
-            // correct latitude and longitude.
-            if (savedInstanceState.keySet().contains(LOCATION_KEY)) {
-                // Since LOCATION_KEY was found in the Bundle, we can be sure that mCurrentLocation
-                // is not null.
-                mCurrentLocation = savedInstanceState.getParcelable(LOCATION_KEY);
-            }
-
-            // Update the value of mTotalDistance from the Bundle and update the UI to show the
-            // correct distance.
-            if (savedInstanceState.keySet().contains(DISTANCE_KEY)) {
-                // Since LOCATION_KEY was found in the Bundle, we can be sure that mCurrentLocation
-                // is not null.
-                mTotalDistance = savedInstanceState.getFloat(DISTANCE_KEY);
-            }
-
-            // TODO updateUI() on orientation change
+    public void pauseRide(View v) {
+        if (mRequestingLocationUpdates) {
+            isRunning = false;
+            mBtnPause.setEnabled(false);
+            mBtnPause.setText(R.string.unpause_button);
+            h.postDelayed(r, 6000);
+        }
+        else {
+            isRunning = true;
+            mBtnPause.setText(R.string.pause_button);
+            mRequestingLocationUpdates = true;
+            startLocationUpdates();
         }
     }
+
+    public void stopRide(View v) {
+        mRideLayout.setVisibility(View.GONE);
+        mBtnStart.setVisibility(View.VISIBLE);
+        isRunning = false;
+        mBtnStart.setEnabled(false);
+        rideStopped = true;
+        h.postDelayed(r, 6000);
+    }
+
+    Runnable r = new Runnable() {
+        @Override
+        public void run(){
+            mRequestingLocationUpdates = false;
+            stopLocationUpdates();
+            mBtnPause.setEnabled(true);
+            mBtnStart.setEnabled(true);
+            if (rideStopped) {
+                rideStopped = false;
+                saveRide();
+            }
+        }
+    };
 
     protected synchronized void buildGoogleApiClient() {
         // Create an instance of GoogleAPIClient.
@@ -325,6 +378,22 @@ public class MainActivity extends BaseActivity implements
                     .addApi(LocationServices.API)
                     .build();
             createLocationRequest();
+        }
+    }
+
+    public void buildContact() {
+        Cursor c = this.getContentResolver().query(ContactsContract.Profile.CONTENT_URI, null, null, null, null);
+        if (c != null) {
+            int count = c.getCount();
+            c.moveToFirst();
+            int position = c.getPosition();
+            if (count == 1 && position == 0) {
+                mUser = c.getString(c.getColumnIndex("DISPLAY_NAME"));
+                String user_greeting = "Hello " + mUser;
+                TextView mStatusView = (TextView) findViewById(R.id.main_title);
+                mStatusView.setText(user_greeting);
+            }
+            c.close();
         }
     }
 
@@ -391,7 +460,7 @@ public class MainActivity extends BaseActivity implements
                     + Integer.parseInt(array[2]) * 1000;
         }
         mRideTime = elapsed;
-        mAverageSpeed = 1000 * 3600 * mTotalDistance / elapsed;
+        mAverageSpeed = (float) (1000 * 3600 * mTotalDistance / elapsed);
         String average_speed = "Your average speed was " + mAverageSpeed + " mph";
         mAverageSpeedView.setText(average_speed);
     }
@@ -425,6 +494,7 @@ public class MainActivity extends BaseActivity implements
             }
 
             if (hasConnectedWifi || hasConnectedMobile) {
+                // Reverse geocode current address
                 Geocoder geocoder = new Geocoder(this, Locale.getDefault());
                 Address address;
                 List<Address> list = null;
@@ -500,12 +570,18 @@ public class MainActivity extends BaseActivity implements
         Log.d("MainActivity", "Connection : Failed");
     }
 
+    @Override
     public void onDestroy() {
-        mRequestingLocationUpdates = false;
-        if (mGoogleApiClient.isConnected()) {
-            stopLocationUpdates();
-        }
         super.onDestroy();
+
+        // End service
+        endService();
+
+        // Save ride
+        saveRide();
+    }
+
+    public void endService() {
         // Turn off Bluetooth service
         bt.disconnect();
 
@@ -515,31 +591,12 @@ public class MainActivity extends BaseActivity implements
         }
         mGoogleApiClient.disconnect();
         mRequestingLocationUpdates = false;
-
-        // Save ride
-        saveRide();
     }
 
+    @Override
     public void onStart() {
         super.onStart();
-        switch (bt.getServiceState()) {
-            case BluetoothState.STATE_CONNECTED:
-                Log.i("Check", "State : Connected");
-                mEdisonStatus.setText(getResources().getString(R.string.edison_connected));
-                break;
-            case BluetoothState.STATE_CONNECTING:
-                Log.i("Check", "State : Connecting");
-                mEdisonStatus.setText(getResources().getString(R.string.edison_connecting));
-                break;
-            case BluetoothState.STATE_LISTEN:
-                Log.i("Check", "State : Listen");
-                mEdisonStatus.setText(getResources().getString(R.string.edison_listening));
-                break;
-            case BluetoothState.STATE_NONE:
-                Log.i("Check", "State : None");
-                mEdisonStatus.setText(getResources().getString(R.string.edison_none));
-                break;
-        }
+        updateStatus(bt.getServiceState());
         mGoogleApiClient.connect();
 
         if(!bt.isBluetoothEnabled()) {
@@ -549,25 +606,6 @@ public class MainActivity extends BaseActivity implements
                 bt.setupService();
                 bt.startService(BluetoothState.DEVICE_OTHER);
                 setup();
-            }
-        }
-    }
-
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
-            if(resultCode == Activity.RESULT_OK) {
-                mRequestingLocationUpdates = true;
-                startLocationUpdates();
-                bt.connect(data);
-            }
-        } else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
-            if(resultCode == Activity.RESULT_OK) {
-                bt.setupService();
-            } else {
-                Toast.makeText(getApplicationContext()
-                        , "Bluetooth was not enabled."
-                        , Toast.LENGTH_SHORT).show();
-                finish();
             }
         }
     }
@@ -604,7 +642,9 @@ public class MainActivity extends BaseActivity implements
         return true;
     }
 
-    public void setup() { }
+    public void setup() {
+        bt.autoConnect("edison");
+    }
 
     public void saveRide() {
         // Create a new ride.
@@ -622,23 +662,51 @@ public class MainActivity extends BaseActivity implements
         ride.time = currentTime;
 
         // Set distance
-        ride.distance = mTotalDistance;
+        ride.distance = (float) mTotalDistance;
 
         // Set average speed
         ride.averageSpeed = mAverageSpeed;
 
         // Set ride time
         int rideInSeconds = mRideTime / 1000;
-        ride.rideTime = rideInSeconds / 3600 + ":" + (rideInSeconds % 3600) / 60 + ":" + rideInSeconds % 60;
+        String rideTimeString =  rideInSeconds / 3600 + ":" + (rideInSeconds % 3600) / 60 + ":" + rideInSeconds % 60;
+        ride.rideTime = rideTimeString;
 
-        // Set good stops (not useful?)
-        ride.goodStops = 140;
+        // Set bad stops
+        ride.badStops = mBadStops;
 
-        // Set bad stops (not useful?)
-        ride.badStops = 5;
+        // Set rating
+        float rat_float = 1.0f;
+        if (mBadStops < mTotalDistance / 8) {
+            rat_float = rat_float + 1.5f;
+        }
+        if (mBadStops < mTotalDistance / 6) {
+            rat_float = rat_float + 1;
+        }
+        if(mBadStops > mTotalDistance / 2.5) {
+            rat_float = rat_float - 1;
+        }
+        if (mTotalDistance > 5) {
+            rat_float = rat_float + 0.5f;
+        }
+        if (mTotalDistance > 10) {
+            rat_float = rat_float + 0.5f;
+        }
+        if (mTotalDistance > 15) {
+            rat_float = rat_float + 0.5f;
+        }
+        if (mAverageSpeed > 10) {
+            rat_float = rat_float + 0.5f;
+        }
+        if (mAverageSpeed > 15) {
+            rat_float = rat_float + 0.5f;
+        }
 
-        // Set rating (not useful?)
-        ride.rating = 4;
+        if (rat_float > 5) {
+            rat_float = 5;
+        }
+
+        ride.rating = rat_float;
 
         if (RideHandler.getInstance(this).putRide(ride)) {
             Toast.makeText(getApplicationContext()
@@ -646,11 +714,178 @@ public class MainActivity extends BaseActivity implements
                     , Toast.LENGTH_LONG).show();
         }
 
+        // push to post
+        Map<String, Object> post = new HashMap<>();
+        post.put("user", mUser);
+        post.put("distance", mTotalDistance);
+        post.put("date", currentDate);
+        post.put("time", currentTime);
+        post.put("braking", mBadStops);
+        post.put("rating", rat_float);
+
+        Firebase rootRef = new Firebase("https://popping-fire-4590.firebaseio.com/");
+        rootRef.child("posts/").push()
+                .setValue(post, new Firebase.CompletionListener() {
+            @Override
+            public void onComplete(FirebaseError firebaseError, Firebase firebase) {
+                Log.i("Check", "Ride pushed to database");
+                Toast.makeText(getApplicationContext()
+                        , "Ride pushed to database!"
+                        , Toast.LENGTH_LONG).show();
+            }
+        });
+
+        // push to user
+        Map<String, Object> userPost = new HashMap<>();
+        userPost.put("distance", mTotalDistance);
+        userPost.put("date", currentDate);
+        userPost.put("time", currentTime);
+        userPost.put("braking", mBadStops);
+        userPost.put("rating", rat_float);
+
+        rootRef.child("users/" + mUser).push().setValue(userPost);
+
+        // add to leaderboards (transaction)
+        rootRef.child("num-rides-leaderboard/" + mUser).runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                if(currentData.getValue() == null) {
+                    currentData.setValue(1);
+                } else {
+                    currentData.setValue((Long) currentData.getValue() + 1);
+                }
+                return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+            }
+            @Override
+            public void onComplete(FirebaseError firebaseError, boolean committed, DataSnapshot currentData) {
+            }
+        });
+
+        rootRef.child("distance-leaderboard/" + mUser).runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                if(currentData.getValue() == null) {
+                    currentData.setValue(mTotalDistance);
+                } else {
+                    currentData.setValue((Double) currentData.getValue() + mTotalDistance);
+                }
+                return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+            }
+            @Override
+            public void onComplete(FirebaseError firebaseError, boolean committed, DataSnapshot currentData) {
+                //This method will be called once with the results of the transaction.
+                Toast.makeText(getApplicationContext()
+                        , "Ride added to leaderboard!"
+                        , Toast.LENGTH_LONG).show();
+            }
+        });
+
+        rootRef.child("braking-leaderboard/" + mUser).runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                if(currentData.getValue() == null) {
+                    currentData.setValue(mBadStops);
+                } else {
+                    currentData.setValue((Double) currentData.getValue() + mBadStops);
+                }
+                return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+            }
+            @Override
+            public void onComplete(FirebaseError firebaseError, boolean committed, DataSnapshot currentData) {
+            }
+        });
+
+        final float finalRat_float = rat_float;
+        rootRef.child("rating-leaderboard/" + mUser).runTransaction(new Transaction.Handler() {
+            @Override
+            public Transaction.Result doTransaction(MutableData currentData) {
+                if (currentData.getValue() == null) {
+                    currentData.setValue(finalRat_float);
+                } else {
+                    currentData.setValue((Double) currentData.getValue() + finalRat_float);
+                }
+                return Transaction.success(currentData); //we can also abort by calling Transaction.abort()
+            }
+
+            @Override
+            public void onComplete(FirebaseError firebaseError, boolean committed, DataSnapshot currentData) {
+            }
+        });
     }
+
+    private void updateValuesFromBundle(Bundle savedInstanceState) {
+        Log.i("MainActivity", "Updating values from bundle");
+        if (savedInstanceState != null) {
+            // Update the value of mRequestingLocationUpdates from the Bundle, and make sure that
+            // the Start Updates and Stop Updates buttons are correctly enabled or disabled.
+            if (savedInstanceState.keySet().contains(REQUESTING_LOCATION_UPDATES_KEY)) {
+                mRequestingLocationUpdates = savedInstanceState.getBoolean(
+                        REQUESTING_LOCATION_UPDATES_KEY);
+            }
+
+            // Update the value of mCurrentLocation from the Bundle and update the UI to show the
+            // correct latitude and longitude.
+            if (savedInstanceState.keySet().contains(LOCATION_KEY)) {
+                // Since LOCATION_KEY was found in the Bundle, we can be sure that mCurrentLocation
+                // is not null.
+                mCurrentLocation = savedInstanceState.getParcelable(LOCATION_KEY);
+            }
+
+            // Update the value of mTotalDistance from the Bundle and update the UI to show the
+            // correct distance.
+            if (savedInstanceState.keySet().contains(DISTANCE_KEY)) {
+                // Since DISTANCE_KEY was found in the Bundle, we can be sure that mTotalDistance
+                // is not null.
+                mTotalDistance = savedInstanceState.getDouble(DISTANCE_KEY);
+            }
+        }
+    }
+
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
         savedInstanceState.putParcelable(LOCATION_KEY, mCurrentLocation);
-        savedInstanceState.putFloat(DISTANCE_KEY, mTotalDistance);
+        savedInstanceState.putDouble(DISTANCE_KEY, mTotalDistance);
         super.onSaveInstanceState(savedInstanceState);
     }
+
+    public void updateStatus(int state) {
+        switch (state) {
+            case BluetoothState.STATE_CONNECTED:
+                Log.i("Check", "State : Connected");
+                mEdisonStatus.setText(getResources().getString(R.string.edison_connected));
+                break;
+            case BluetoothState.STATE_CONNECTING:
+                Log.i("Check", "State : Connecting");
+                mEdisonStatus.setText(getResources().getString(R.string.edison_connecting));
+                break;
+            case BluetoothState.STATE_LISTEN:
+                Log.i("Check", "State : Listen");
+                mEdisonStatus.setText(getResources().getString(R.string.edison_listening));
+                break;
+            case BluetoothState.STATE_NONE:
+                Log.i("Check", "State : None");
+                mEdisonStatus.setText(getResources().getString(R.string.edison_none));
+                break;
+        }
+    }
+
+//    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+//        if(requestCode == BluetoothState.REQUEST_CONNECT_DEVICE) {
+//            if(resultCode == Activity.RESULT_OK) {
+//                mRequestingLocationUpdates = true;
+//                startLocationUpdates();
+//                bt.connect(data);
+//            }
+//        } else if(requestCode == BluetoothState.REQUEST_ENABLE_BT) {
+//            if(resultCode == Activity.RESULT_OK) {
+//                bt.setupService();
+//            } else {
+//                Toast.makeText(getApplicationContext()
+//                        , "Bluetooth was not enabled."
+//                        , Toast.LENGTH_SHORT).show();
+//                finish();
+//            }
+//        }
+//    }
+
 }

@@ -137,7 +137,72 @@
                         android:isIndicator="true"
                         android:stepSize="0.05"
                         android:contextClickable="false"
+                        android:layout_marginBottom="20dp"
                         android:clickable="false"/>
+
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:id="@+id/ivTEST1"
+                        android:src ="@drawable/marathonicon"
+                        android:layout_alignTop="@id/ratBar"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginStart="0dp"
+                        android:visibility="gone"
+                        android:layout_marginLeft="0dp" />
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:id="@+id/ivTEST2"
+                        android:src="@drawable/dangericon"
+                        android:layout_alignTop="@id/ratBar"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginStart="0dp"
+                        android:visibility="gone"
+                        android:layout_marginLeft="0dp" />
+
+                    <ImageView
+                        android:layout_width="40dp"
+                        android:layout_height="40dp"
+                        android:id="@+id/ivTEST3"
+                        android:src="@drawable/dangericon"
+                        android:layout_alignTop="@id/ratBar"
+                        android:layout_marginTop="0dp"
+                        android:layout_marginStart="0dp"
+                        android:visibility="gone"
+                        android:layout_marginLeft="0dp" />
+
+                    <TextView
+                        android:id="@+id/tvBot1"
+                        android:layout_below="@id/ivTEST1"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="13dp"
+                        android:textColor="#000000"/>
+
+                    <TextView
+                        android:id="@+id/tvBot2"
+                        android:layout_below="@id/tvBot1"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="13dp"
+                        android:textColor="#000000"/>
+
+                    <TextView
+                        android:id="@+id/tvBot3"
+                        android:layout_below="@id/tvBot2"
+                        android:layout_marginTop="5dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text=""
+                        android:textSize="13dp"
+                        android:textColor="#000000"/>
 
                 </LinearLayout>
 

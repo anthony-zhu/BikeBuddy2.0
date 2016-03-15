@@ -5,50 +5,154 @@
     android:orientation="vertical"
     android:padding="@dimen/regular_offset">
 
-    <Chronometer
-        android:id="@+id/main_timer"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
-
-    <TextView
-        android:id="@+id/main_latitude"
-        android:layout_below="@id/main_timer"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view1"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/main_default_latitude" />
+        card_view:cardElevation="5dp"
+        android:layout_margin="@dimen/stat_margin"
+        card_view:cardCornerRadius="4dp">
 
-    <TextView
-        android:id="@+id/main_longitude"
-        android:layout_below="@id/main_latitude"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/main_default_longitude" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/main_speed"
-        android:layout_below="@id/main_longitude"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/main_default_location" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Bike time: " />
 
-    <TextView
-        android:id="@+id/main_total_distance"
-        android:layout_below="@id/main_speed"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/main_default_total_distance" />
+            <Chronometer
+                android:id="@+id/main_timer"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
 
-    <TextView
-        android:id="@+id/main_average_speed"
-        android:layout_below="@id/main_total_distance"
-        android:layout_marginTop="20dp"
-        android:layout_width="wrap_content"
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view2"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="" />
+        card_view:cardElevation="5dp"
+        android:layout_marginBottom="@dimen/stat_margin"
+        android:layout_marginLeft="@dimen/stat_margin"
+        android:layout_marginRight="@dimen/stat_margin"
+        card_view:cardCornerRadius="4dp">
+
+            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical" >
+
+                <TextView
+                    android:id="@+id/main_latitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_margin="10dp"
+                    android:text="@string/main_default_latitude" />
+
+                <TextView
+                    android:id="@+id/main_longitude"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginLeft="10dp"
+                    android:layout_marginRight="10dp"
+                    android:text="@string/main_default_longitude" />
+            </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view3"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardElevation="5dp"
+        android:layout_marginBottom="@dimen/stat_margin"
+        android:layout_marginLeft="@dimen/stat_margin"
+        android:layout_marginRight="@dimen/stat_margin"
+        card_view:cardCornerRadius="4dp">
+
+        <TextView
+            android:id="@+id/main_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/main_default_location" />
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view4"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardElevation="5dp"
+        android:layout_marginBottom="@dimen/stat_margin"
+        android:layout_marginLeft="@dimen/stat_margin"
+        android:layout_marginRight="@dimen/stat_margin"
+        card_view:cardCornerRadius="4dp">
+
+        <TextView
+            android:id="@+id/main_total_distance"
+            android:layout_margin="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/main_default_total_distance" />
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view5"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardElevation="5dp"
+        android:layout_marginBottom="@dimen/stat_margin"
+        android:layout_marginLeft="@dimen/stat_margin"
+        android:layout_marginRight="@dimen/stat_margin"
+        card_view:cardCornerRadius="4dp">
+
+        <TextView
+            android:id="@+id/main_bad_stops"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/main_default_bad_stops" />
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.CardView
+        xmlns:card_view="http://schemas.android.com/apk/res-auto"
+        android:id="@+id/card_view6"
+        android:layout_gravity="center"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        card_view:cardElevation="5dp"
+        android:layout_marginBottom="@dimen/stat_margin"
+        android:layout_marginLeft="@dimen/stat_margin"
+        android:layout_marginRight="@dimen/stat_margin"
+        card_view:cardCornerRadius="4dp">
+
+        <TextView
+            android:id="@+id/main_average_speed"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="@string/main_default_average_speed" />
+
+    </android.support.v7.widget.CardView>
 
 </LinearLayout>

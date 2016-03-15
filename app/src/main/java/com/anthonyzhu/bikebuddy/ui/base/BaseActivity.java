@@ -115,9 +115,6 @@ public abstract class BaseActivity extends AppCompatActivity {
             case R.id.nav_emergency_contact:
                 startActivity(new Intent(this, EmergencyContact.class));
                 break;
-/*            case R.id.nav_settings:
-                startActivity(new Intent(this, SettingsActivity.class));
-                break;*/
         }
     }
 

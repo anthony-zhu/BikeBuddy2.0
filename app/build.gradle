@@ -11,6 +11,11 @@ android {
         versionCode 1
         versionName "1.0"
     }
+    packagingOptions {
+        exclude 'META-INF/LICENSE'
+        exclude 'META-INF/LICENSE-FIREBASE.txt'
+        exclude 'META-INF/NOTICE'
+    }
     buildTypes {
         release {
             minifyEnabled false
@@ -28,4 +33,5 @@ dependencies {
     compile 'com.jakewharton:butterknife:7.0.1'
     compile project(':libraries:BluetoothSPP')
     compile 'com.google.android.gms:play-services:8.4.0'
+    compile 'com.firebase:firebase-client-android:2.5.0+'
 }

@@ -84,10 +84,10 @@ public class ArticleListFragment extends ListFragment {
                     ride.distance = c1.getFloat(3);
                     ride.averageSpeed = c1.getFloat(4);
                     ride.rideTime = c1.getString(5);
-                    ride.goodStops = c1.getFloat(6);
-                    ride.badStops = c1.getInt(7);
-                    ride.rating = c1.getInt(8);
-                    rideList.add(ride);
+                    ride.badStops = c1.getInt(6);
+                    ride.rating = c1.getInt(7);
+                    // List goes from newest to oldest
+                    rideList.add(0, ride);
                 } while (c1.moveToNext());
             }
             c1.close();

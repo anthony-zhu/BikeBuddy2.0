@@ -4,14 +4,18 @@
     <string name="article_detail_more_info">More Info</string>
 
 
-    <string name="main_button">Connect to Edison</string>
+    <string name="start_button">Start Ride</string>
+    <string name="pause_button">Pause Ride</string>
+    <string name="unpause_button">Unpause Ride</string>
+    <string name="stop_button">Stop Ride</string>
     <string name="main_title">Hello User</string>
     <string name="main_subhead">Edison is not connected</string>
-    <string name="main_default_latitude">Current latitude not tracked</string>
-    <string name="main_default_longitude">Current longitude not tracked</string>
-    <string name="main_default_location">Current location not tracked</string>
-    <string name="main_default_total_distance">Total Distance not tracked</string>
-
+    <string name="main_default_latitude">Current latitude not yet tracked</string>
+    <string name="main_default_longitude">Current longitude not yet tracked</string>
+    <string name="main_default_location">Current location not yet tracked</string>
+    <string name="main_default_total_distance">Total Distance not yet tracked</string>
+    <string name="main_default_bad_stops">Aggressive stops: 0</string>
+    <string name="main_default_average_speed">Average speed not yet tracked</string>
 
     <string name="emergency_contact_title">Emergency Contact Number</string>
     <string name="emergency_contact_subhead">Please enter a valid phone number or pick one from your contacts:</string>

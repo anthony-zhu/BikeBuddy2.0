@@ -67,6 +67,24 @@ public class ArticleDetailFragment extends BaseFragment {
     @Bind(R.id.ratBar)
     RatingBar ratBar;
 
+    @Bind(R.id.ivTEST1)
+    ImageView ivT1;
+
+    @Bind(R.id.ivTEST2)
+    ImageView ivT2;
+
+    @Bind(R.id.ivTEST3)
+    ImageView ivT3;
+
+    @Bind(R.id.tvBot1)
+    TextView q1;
+
+    @Bind(R.id.tvBot2)
+    TextView q2;
+
+    @Bind(R.id.tvBot3)
+    TextView q3;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -95,12 +113,84 @@ public class ArticleDetailFragment extends BaseFragment {
             String dateTimeText = "You rode on " + ride.date + " at " + ride.time;
             String distanceText = "You rode " + ride.distance + " miles";
             String rideInfoText = "-Your ride lasted: "+ ride.rideTime +". \n-Your average speed was " + ride.averageSpeed +" mph.";
-            String extraStatsText = "Safe Brake percentages: "+ ride.goodStops + "% \n-Number of Dangerous Stops:" + ride.badStops;
+            String extraStatsText = "Number of Dangerous Stops:" + ride.badStops;
             dateTime.setText(dateTimeText);
             distance.setText(distanceText);
             rideInfo.setText(rideInfoText);
             extraStats.setText(extraStatsText);
             ratBar.setRating(ride.rating);
+
+            int attCount = 0;
+
+            if (ride.badStops > (ride.distance / 2.5) || ride.badStops < (ride.distance / 4) ){
+                String note1= null;
+                ViewGroup.MarginLayoutParams ivT1LayoutParams = (ViewGroup.MarginLayoutParams) ivT1.getLayoutParams();
+                ivT1LayoutParams.leftMargin = 10;
+                if (ride.badStops < (ride.distance / 4)){
+                    ivT1.setImageDrawable(getResources().getDrawable(R.drawable.helmeticon));
+                    note1 = "Thanks for riding safely; keep it up!";
+                }
+                else{
+                    ivT1.setImageDrawable(getResources().getDrawable(R.drawable.dangericon));
+                    note1 = "DANGER: Please be more careful on the road";
+                }
+                q1.setText(note1);
+                ivT1.setVisibility(View.VISIBLE);
+                attCount = attCount + 1;
+            }
+            if (ride.distance > 10){
+                String note2 = null;
+                int pix1 = ( attCount * 100) + 10;
+                ViewGroup.MarginLayoutParams ivT2LayoutParams = (ViewGroup.MarginLayoutParams) ivT2.getLayoutParams();
+                ivT2LayoutParams.leftMargin = pix1;
+                if (ride.distance > 26.2){
+                    ivT2.setImageDrawable(getResources().getDrawable(R.drawable.marathonicon));
+                    note2= "We're impressed with your distance, you're an endurance champ!";
+
+                }
+                else{
+                    ivT2.setImageDrawable(getResources().getDrawable(R.drawable.rulericon));
+                    note2="Good Distance! But do you have what it takes to be a marathoner?";
+                }
+                if (attCount==1){
+                    q2.setText(note2);
+                } else {
+                    q1.setText(note2);
+                }
+                ivT2.setVisibility(View.VISIBLE);
+                ivT2.setLayoutParams(ivT2LayoutParams);
+                attCount = attCount +1;
+            }
+            if (ride.averageSpeed > 14){
+                String note3 = null;
+                int pix2 = (attCount * 100)+10;
+                ViewGroup.MarginLayoutParams ivT3LayoutParams = (ViewGroup.MarginLayoutParams) ivT3.getLayoutParams();
+                ivT3LayoutParams.leftMargin = pix2;
+                if (ride.averageSpeed > 23){
+                    ivT3.setImageDrawable(getResources().getDrawable(R.drawable.fastbikingicon));
+                    note3 = "Wow!! That was fast! Are you a professional?";
+                }
+                else if (ride.averageSpeed > 18){
+                    ivT3.setImageDrawable(getResources().getDrawable(R.drawable.semifastbikingicon));
+                    note3 = "Great Speed! We're impressed";
+                }
+                else{
+                    ivT3.setImageDrawable(getResources().getDrawable(R.drawable.bikingicon));
+                    note3= "Good Speed; next ride let's notch it up a little";
+                }
+
+                if (attCount==2){
+                    q3.setText(note3);
+                } else if(attCount==1){
+                    q2.setText(note3);
+                } else {
+                    q1.setText(note3);
+                }
+
+                ivT3.setVisibility(View.VISIBLE);
+                ivT3.setLayoutParams(ivT3LayoutParams);
+                //attCount = attCount +1;
+            }
         }
 
         return rootView;

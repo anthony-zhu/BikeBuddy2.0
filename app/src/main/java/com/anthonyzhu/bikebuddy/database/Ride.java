@@ -17,13 +17,12 @@ public class Ride {
     public static final String COL_TOTAL_DISTANCE = "distance";
     public static final String COL_AVERAGE_SPEED = "averageSpeed";
     public static final String COL_RIDE_TIME = "rideTime";
-    public static final String COL_GOOD_STOPS = "goodStops";
     public static final String COL_BAD_STOPS = "badStops";
     public static final String COL_RATING = "rating";
 
     // For database projection so order is consistent
     public static final String[] FIELDS = { COL_ID, COL_DATE, COL_TIME, COL_TOTAL_DISTANCE,
-            COL_AVERAGE_SPEED, COL_RIDE_TIME, COL_GOOD_STOPS, COL_BAD_STOPS, COL_RATING };
+            COL_AVERAGE_SPEED, COL_RIDE_TIME, COL_BAD_STOPS, COL_RATING };
 
     /*
      * The SQL code that creates a Table for storing Persons in.
@@ -38,9 +37,8 @@ public class Ride {
                     + COL_TOTAL_DISTANCE + " INTEGER DEFAULT 0,"
                     + COL_AVERAGE_SPEED + " REAL DEFAULT 0.0,"
                     + COL_RIDE_TIME + " TEXT NOT NULL DEFAULT '',"
-                    + COL_GOOD_STOPS + " REAL DEFAULT 0.0,"
                     + COL_BAD_STOPS + " INTEGER DEFAULT 0,"
-                    + COL_RATING + " INTEGER DEFAULT 5"
+                    + COL_RATING + " REAL DEFAULT 5"
                     + ")";
 
     // Fields corresponding to database columns
@@ -50,9 +48,8 @@ public class Ride {
     public float distance = 0;
     public float averageSpeed = 0;
     public String rideTime = "";
-    public float goodStops = 0;
     public int badStops = 0;
-    public int rating = 0;
+    public float rating = 0;
 
     /**
      * No need to do anything, fields are already set to default values above
@@ -71,9 +68,8 @@ public class Ride {
         this.distance = cursor.getFloat(3);
         this.averageSpeed = cursor.getFloat(4);
         this.rideTime = cursor.getString(5);
-        this.goodStops = cursor.getFloat(6);
-        this.badStops = cursor.getInt(7);
-        this.rating = cursor.getInt(8);
+        this.badStops = cursor.getInt(6);
+        this.rating = cursor.getFloat(7);
     }
 
     /**
@@ -88,7 +84,6 @@ public class Ride {
         values.put(COL_TOTAL_DISTANCE, distance);
         values.put(COL_AVERAGE_SPEED, averageSpeed);
         values.put(COL_RIDE_TIME, rideTime);
-        values.put(COL_GOOD_STOPS, goodStops);
         values.put(COL_BAD_STOPS, badStops);
         values.put(COL_RATING, rating);
 
