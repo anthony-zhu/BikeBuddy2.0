@@ -263,8 +263,13 @@ public class MainActivity extends BaseActivity implements
                             // End service
                             endService();
 
-                            // Save ride
-                            saveRide();
+                            // Return to stop screen
+                            mRideLayout.setVisibility(View.GONE);
+                            mBtnStart.setVisibility(View.VISIBLE);
+                            isRunning = false;
+                            mBtnStart.setEnabled(false);
+                            rideStopped = true;
+                            h.postDelayed(r, 6000);
 
                             // Launch Dialog Activity
                             Intent intent = new Intent(MainActivity.this, DialogActivity.class);
@@ -577,8 +582,10 @@ public class MainActivity extends BaseActivity implements
         // End service
         endService();
 
-        // Save ride
-        saveRide();
+        if (mRequestingLocationUpdates) {
+            // Save ride
+            saveRide();
+        }
     }
 
     public void endService() {
